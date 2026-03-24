@@ -9,7 +9,6 @@
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; padding: 1rem; }
     .wrap { max-width: 680px; margin: 0 auto; background: #fff; border-radius: 14px; border: 1px solid #e0e0dc; padding: 1.5rem; }
 
-    /* Header */
     .header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 1.25rem; }
     .logo { display: flex; align-items: center; gap: 14px; }
     .logo-text { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: #1a1a1a; }
@@ -18,26 +17,22 @@
     .logo-div { width: 1px; height: 24px; background: #ccc; }
     .logo-bcu { font-size: 22px; font-weight: 700; letter-spacing: 1px; color: #1a1a1a; }
 
-    /* Vehicle toggle */
     .veh-btns { display: flex; gap: 8px; }
     .veh-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid #ccc; background: #fff; font-size: 14px; cursor: pointer; font-weight: 400; color: #666; transition: all 0.15s; }
     .veh-btn.active-lb { border: 2px solid #185FA5; background: #E6F1FB; color: #185FA5; font-weight: 500; }
     .veh-btn.active-vb { border: 2px solid #0F6E56; background: #E1F5EE; color: #0F6E56; font-weight: 500; }
 
-    /* Common fields */
     .common-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 1.25rem; }
     label { display: block; font-size: 12px; color: #666; margin-bottom: 3px; }
     input, select, textarea { width: 100%; padding: 8px 10px; font-size: 14px; border: 1px solid #d0d0cc; border-radius: 8px; background: #fff; color: #1a1a1a; font-family: inherit; outline: none; transition: border 0.15s; }
     input:focus, select:focus, textarea:focus { border-color: #888; }
     textarea { resize: vertical; }
 
-    /* Tabs */
-    .tabs { display: flex; border-bottom: 1px solid #e0e0dc; margin-bottom: 1.25rem; overflow-x: auto; gap: 0; }
+    .tabs { display: flex; border-bottom: 1px solid #e0e0dc; margin-bottom: 1.25rem; overflow-x: auto; }
     .tab-btn { padding: 8px 13px; font-size: 13px; background: none; border: none; border-bottom: 2px solid transparent; color: #888; cursor: pointer; font-weight: 400; white-space: nowrap; font-family: inherit; margin-bottom: -1px; transition: all 0.15s; }
     .tab-btn.active-lb { border-bottom-color: #185FA5; color: #185FA5; font-weight: 500; }
     .tab-btn.active-vb { border-bottom-color: #0F6E56; color: #0F6E56; font-weight: 500; }
 
-    /* Checklist */
     .check-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .check-header p { font-size: 13px; color: #666; }
     .badge { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
@@ -58,14 +53,11 @@
     .check-label.checked-vb { color: #0F6E56; }
     .check-sub { font-size: 12px; color: #888; margin-left: 8px; }
 
-    /* Note */
     .note-wrap { margin-bottom: 1rem; }
     .note-wrap label { font-size: 13px; color: #666; margin-bottom: 4px; }
 
-    /* Fault alert */
     .fault-alert { padding: 10px 14px; background: #FCEBEB; border: 1px solid #E24B4A40; border-radius: 8px; margin-bottom: 14px; font-size: 13px; color: #A32D2D; font-weight: 500; }
 
-    /* Send section */
     .send-section { border-top: 1px solid #e0e0dc; padding-top: 1.25rem; margin-top: 0.5rem; }
     .send-note { font-size: 12px; color: #888; text-align: center; margin-top: 8px; }
     .send-btn { width: 100%; padding: 11px 0; border-radius: 8px; border: none; font-size: 15px; font-weight: 500; cursor: pointer; color: #fff; font-family: inherit; transition: opacity 0.15s; }
@@ -82,7 +74,6 @@
 <body>
 <div class="wrap">
 
-  <!-- Header -->
   <div class="header">
     <div class="logo">
       <div class="logo-text">Reng<span class="logo-red">å</span>rd</div>
@@ -95,14 +86,12 @@
     </div>
   </div>
 
-  <!-- Common fields -->
   <div class="common-grid">
     <div><label>Sjåfør</label><input type="text" id="driver" placeholder="Navn" /></div>
     <div><label>Reg.nr</label><input type="text" id="regnr" placeholder="AB 12345" /></div>
     <div><label>Dato</label><input type="date" id="dato" /></div>
   </div>
 
-  <!-- Tabs -->
   <div class="tabs">
     <button class="tab-btn active-lb" id="tab-daily" onclick="setTab('daily')">Daglig</button>
     <button class="tab-btn" id="tab-weekly" onclick="setTab('weekly')">Ukentlig</button>
@@ -111,7 +100,6 @@
     <button class="tab-btn" id="tab-log" onclick="setTab('km-logg')">Km-logg</button>
   </div>
 
-  <!-- Daily -->
   <div id="panel-daily">
     <div class="check-header">
       <p>Daglig sjekk før avgang</p>
@@ -121,7 +109,6 @@
     <div class="note-wrap"><label>Merknader</label><textarea id="daily-note" rows="3" placeholder="Eventuelle observasjoner eller kommentarer..."></textarea></div>
   </div>
 
-  <!-- Weekly -->
   <div id="panel-weekly" style="display:none">
     <div class="check-header">
       <p>Ukentlig sjekk</p>
@@ -131,7 +118,6 @@
     <div class="note-wrap"><label>Merknader</label><textarea id="weekly-note" rows="3" placeholder="Eventuelle observasjoner eller kommentarer..."></textarea></div>
   </div>
 
-  <!-- Periodic -->
   <div id="panel-periodic" style="display:none">
     <div class="check-header">
       <p>Periodisk vedlikehold og service</p>
@@ -141,7 +127,6 @@
     <div class="note-wrap"><label>Merknader</label><textarea id="periodic-note" rows="3" placeholder="Utført av, deler brukt, observasjoner..."></textarea></div>
   </div>
 
-  <!-- Fault -->
   <div id="panel-fault" style="display:none">
     <div style="margin-bottom:14px"><label>Feilens tittel</label><input type="text" id="fault-title" placeholder="F.eks. Bremsene gnisler" /></div>
     <div style="margin-bottom:14px"><label>Berørt komponent/system</label><input type="text" id="fault-comp" placeholder="F.eks. Bakhjulsbremser, motor, girkasse..." /></div>
@@ -157,7 +142,6 @@
     <div class="note-wrap"><label>Beskrivelse</label><textarea id="fault-desc" rows="5" placeholder="Beskriv feilen i detalj – når oppstod den, under hvilke forhold, symptomer..."></textarea></div>
   </div>
 
-  <!-- Km-logg -->
   <div id="panel-km-logg" style="display:none">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
       <div><label>Km-stand (avlesing)</label><input type="number" id="km-stand" placeholder="123456" /></div>
@@ -168,17 +152,14 @@
     <div class="note-wrap"><label>Merknad</label><textarea id="km-note" rows="3" placeholder="Eventuelle hendelser, stopp, avvik..."></textarea></div>
   </div>
 
-  <!-- Send -->
   <div class="send-section">
     <button class="send-btn send-btn-lb" id="send-btn" onclick="sendReport()">Send rapport via e-post</button>
     <p class="send-note">Rapporten sendes til vedlikehold@rengaard.no via din e-postklient</p>
   </div>
 
 </div>
-
 <script>
   const EMAIL = "vedlikehold@rengaard.no";
-
   const DATA = {
     lastebil: {
       daily: ["Motorolje nivå","Kjølevæske nivå","Bremsevæske nivå","Vindspylervæske nivå","Dekk og lufttrykk (alle hjul inkl. reservehjul)","Bremser (funksjon og lyd)","Lys og blinklys","Advarselslys på dashboard","Vinduspuss og speil","Lasterom – sikring av gods"],
@@ -191,7 +172,7 @@
         {n:"Girkasse og differensial olje",i:"Hvert 2. år"},
         {n:"Kjøresystem – full EU-kontroll",i:"Hvert år"},
         {n:"ADR-utstyr kontroll",i:"Halvårlig"},
-        {n:"Tachograf kalibrering",i:"Hvert 2. år"},
+        {n:"Tachograf kalibrering",i:"Hvert 2. år"}
       ]
     },
     varebil: {
@@ -203,20 +184,17 @@
         {n:"Bremser – kontroll og måling",i:"Hvert halvår"},
         {n:"Drivremmer",i:"Hvert 2. år"},
         {n:"EU-kontroll",i:"Hvert 2. år"},
-        {n:"Klimaanlegg service",i:"Hvert 2. år"},
+        {n:"Klimaanlegg service",i:"Hvert 2. år"}
       ]
     }
   };
 
-  let vehicle = "lastebil";
-  let activeTab = "daily";
-  let checks = {};
+  let vehicle = "lastebil", activeTab = "daily", checks = {};
 
   function vClass(base) { return base + (vehicle === "lastebil" ? "-lb" : "-vb"); }
 
   function setVehicle(v) {
-    vehicle = v;
-    checks = {};
+    vehicle = v; checks = {};
     document.getElementById("btn-lb").className = "veh-btn" + (v === "lastebil" ? " active-lb" : "");
     document.getElementById("btn-vb").className = "veh-btn" + (v === "varebil" ? " active-vb" : "");
     document.querySelectorAll(".tab-btn").forEach(b => b.className = "tab-btn");
@@ -238,22 +216,20 @@
     const list = document.getElementById(listId);
     list.innerHTML = "";
     items.forEach((item, i) => {
-      const key = prefix + i;
-      const ok = !!checks[key];
+      const key = prefix + i, ok = !!checks[key];
       const div = document.createElement("div");
       div.className = "check-item" + (ok ? " " + vClass("checked") : "");
       div.innerHTML = `
         <div class="checkbox ${ok ? vClass("checked") : ""}">
           <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7L10 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <span class="check-label ${ok ? vClass("checked") : ""}">${typeof item === "object" ? item.n : item}${typeof item === "object" ? `<span class="check-sub">${item.i}</span>` : ""}</span>
-      `;
+        <span class="check-label ${ok ? vClass("checked") : ""}">${typeof item==="object"?item.n:item}${typeof item==="object"?`<span class="check-sub">${item.i}</span>`:""}</span>`;
       div.onclick = () => { checks[key] = !checks[key]; renderList(listId, items, prefix, badgeId); };
       list.appendChild(div);
     });
-    const count = items.filter((_, i) => !!checks[prefix + i]).length;
+    const count = items.filter((_,i) => !!checks[prefix+i]).length;
     const badge = document.getElementById(badgeId);
-    badge.textContent = count + "/" + items.length + (listId === "periodic-list" ? " utført" : " OK");
+    badge.textContent = count+"/"+items.length+(listId==="periodic-list"?" utført":" OK");
     badge.className = "badge " + vClass("badge");
   }
 
@@ -265,8 +241,8 @@
   }
 
   function checkSeverity() {
-    const v = document.getElementById("fault-sev").value;
-    document.getElementById("fault-alert").style.display = v === "Høy – kjøring stanset" ? "" : "none";
+    document.getElementById("fault-alert").style.display =
+      document.getElementById("fault-sev").value === "Høy – kjøring stanset" ? "" : "none";
   }
 
   function sendReport() {
@@ -277,51 +253,44 @@
     const d = DATA[vehicle];
     const lines = [];
     lines.push("VEDLIKEHOLDSRAPPORT – " + vLabel.toUpperCase());
-    lines.push("Dato: " + dato + "  |  Sjåfør: " + driver + "  |  Reg.nr: " + regnr);
+    lines.push("Dato: "+dato+"  |  Sjåfør: "+driver+"  |  Reg.nr: "+regnr);
     lines.push("");
-
-    if (activeTab === "daily") {
+    if (activeTab==="daily") {
       lines.push("=== DAGLIG SJEKKLISTE ===");
-      d.daily.forEach((item, i) => lines.push((checks["d-" + i] ? "[OK]" : "[ ]") + " " + item));
-      const n = document.getElementById("daily-note").value;
-      if (n) lines.push("\nMerknad: " + n);
+      d.daily.forEach((item,i) => lines.push((checks["d-"+i]?"[OK]":"[ ]")+" "+item));
+      const n=document.getElementById("daily-note").value; if(n) lines.push("\nMerknad: "+n);
     }
-    if (activeTab === "weekly") {
+    if (activeTab==="weekly") {
       lines.push("=== UKENTLIG SJEKKLISTE ===");
-      d.weekly.forEach((item, i) => lines.push((checks["w-" + i] ? "[OK]" : "[ ]") + " " + item));
-      const n = document.getElementById("weekly-note").value;
-      if (n) lines.push("\nMerknad: " + n);
+      d.weekly.forEach((item,i) => lines.push((checks["w-"+i]?"[OK]":"[ ]")+" "+item));
+      const n=document.getElementById("weekly-note").value; if(n) lines.push("\nMerknad: "+n);
     }
-    if (activeTab === "periodic") {
+    if (activeTab==="periodic") {
       lines.push("=== PERIODISK SERVICE ===");
-      d.periodic.forEach((item, i) => lines.push((checks["p-" + i] ? "[OK]" : "[ ]") + " " + item.n + " (" + item.i + ")"));
-      const n = document.getElementById("periodic-note").value;
-      if (n) lines.push("\nMerknad: " + n);
+      d.periodic.forEach((item,i) => lines.push((checks["p-"+i]?"[OK]":"[ ]")+" "+item.n+" ("+item.i+")"));
+      const n=document.getElementById("periodic-note").value; if(n) lines.push("\nMerknad: "+n);
     }
-    if (activeTab === "fault") {
+    if (activeTab==="fault") {
       lines.push("=== FEILRAPPORT ===");
-      lines.push("Tittel: " + document.getElementById("fault-title").value);
-      lines.push("Komponent: " + document.getElementById("fault-comp").value);
-      lines.push("Alvorlighetsgrad: " + document.getElementById("fault-sev").value);
-      lines.push("Beskrivelse: " + document.getElementById("fault-desc").value);
+      lines.push("Tittel: "+document.getElementById("fault-title").value);
+      lines.push("Komponent: "+document.getElementById("fault-comp").value);
+      lines.push("Alvorlighetsgrad: "+document.getElementById("fault-sev").value);
+      lines.push("Beskrivelse: "+document.getElementById("fault-desc").value);
     }
-    if (activeTab === "km-logg") {
+    if (activeTab==="km-logg") {
       lines.push("=== KILOMETERLOGG ===");
-      lines.push("Km-stand: " + document.getElementById("km-stand").value);
-      lines.push("Drivstoff fylt: " + document.getElementById("km-fuel").value + " liter");
-      lines.push("Sjåfør: " + document.getElementById("km-driver").value);
-      lines.push("Rute/oppdrag: " + document.getElementById("km-route").value);
-      const n = document.getElementById("km-note").value;
-      if (n) lines.push("Merknad: " + n);
+      lines.push("Km-stand: "+document.getElementById("km-stand").value);
+      lines.push("Drivstoff fylt: "+document.getElementById("km-fuel").value+" liter");
+      lines.push("Sjåfør: "+document.getElementById("km-driver").value);
+      lines.push("Rute/oppdrag: "+document.getElementById("km-route").value);
+      const n=document.getElementById("km-note").value; if(n) lines.push("Merknad: "+n);
     }
-
-    const subject = encodeURIComponent("Vedlikeholdsrapport – " + vLabel + " – " + (regnr || "ukjent") + " – " + dato);
+    const subject = encodeURIComponent("Vedlikeholdsrapport – "+vLabel+" – "+(regnr||"ukjent")+" – "+dato);
     const body = encodeURIComponent(lines.join("\n"));
-    window.location.href = "mailto:" + EMAIL + "?subject=" + subject + "&body=" + body;
+    window.location.href = "mailto:"+EMAIL+"?subject="+subject+"&body="+body;
   }
 
-  // Init
-  document.getElementById("dato").value = new Date().toISOString().slice(0, 10);
+  document.getElementById("dato").value = new Date().toISOString().slice(0,10);
   renderAll();
 </script>
 </body>
