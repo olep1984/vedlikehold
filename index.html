@@ -1,352 +1,362 @@
-<!DOCTYPE html>
-<html lang="no">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vedlikehold – Rengård</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; padding: 1rem; }
-    .wrap { max-width: 680px; margin: 0 auto; background: #fff; border-radius: 14px; border: 1px solid #e0e0dc; padding: 1.5rem; }
+import { useState } from "react";
 
-    .header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 1.25rem; }
-    .logo { display: flex; align-items: center; gap: 14px; }
-    .logo-text { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: #1a1a1a; }
-    .logo-red { color: #E24B4A; }
-    .logo-blue { color: #185FA5; }
-    .logo-div { width: 1px; height: 24px; background: #ccc; }
-    .logo-bcu { font-size: 22px; font-weight: 700; letter-spacing: 1px; color: #1a1a1a; }
+const DAILY = [
+  "Motorolje nivå",
+  "Kjølevæske nivå",
+  "Bremsevæske nivå",
+  "Vindspylervæske nivå",
+  "Dekk og lufttrykk",
+  "Bremser (funksjon)",
+  "Lys og blinklys",
+  "Advarselslys på dashboard",
+  "Vinduspuss og speil",
+  "Lasterom – sikring av gods",
+];
 
-    .veh-btns { display: flex; gap: 8px; }
-    .veh-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid #ccc; background: #fff; font-size: 14px; cursor: pointer; font-weight: 400; color: #666; transition: all 0.15s; }
-    .veh-btn.active-lb { border: 2px solid #185FA5; background: #E6F1FB; color: #185FA5; font-weight: 500; }
-    .veh-btn.active-vb { border: 2px solid #0F6E56; background: #E1F5EE; color: #0F6E56; font-weight: 500; }
+const WEEKLY = [
+  "Renslighet – hytte og lasterom",
+  "Baklift – smøring og funksjonskontroll",
+];
 
-    .common-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 1.25rem; }
-    label { display: block; font-size: 12px; color: #666; margin-bottom: 3px; }
-    input, select, textarea { width: 100%; padding: 8px 10px; font-size: 14px; border: 1px solid #d0d0cc; border-radius: 8px; background: #fff; color: #1a1a1a; font-family: inherit; outline: none; transition: border 0.15s; }
-    input:focus, select:focus, textarea:focus { border-color: #888; }
-    textarea { resize: vertical; }
+const VEHICLES = {
+  lastebil: {
+    label: "Lastebil",
+    color: "#185FA5",
+    bg: "#E6F1FB",
+    daily: DAILY,
+    weekly: WEEKLY,
+    periodic: [
+      { name: "Motorolje og filter bytte", interval: "Hver 15 000 km" },
+      { name: "Luftfilter sjekk/bytte", interval: "Hvert år" },
+      { name: "Bremser – kontroll og måling", interval: "Hvert halvår" },
+      { name: "Drivremmer", interval: "Hvert 2. år" },
+      { name: "Girkasse og differensial olje", interval: "Hvert 2. år" },
+      { name: "Kjøresystem – full EU-kontroll", interval: "Hvert år" },
+      { name: "ADR-utstyr kontroll", interval: "Halvårlig" },
+      { name: "Tachograf kalibrering", interval: "Hvert 2. år" },
+    ],
+  },
+  varebil: {
+    label: "Varebil",
+    color: "#0F6E56",
+    bg: "#E1F5EE",
+    daily: DAILY,
+    weekly: WEEKLY,
+    periodic: [
+      { name: "Motorolje og filter bytte", interval: "Hver 10 000 km" },
+      { name: "Luftfilter sjekk/bytte", interval: "Hvert år" },
+      { name: "Bremser – kontroll og måling", interval: "Hvert halvår" },
+      { name: "Drivremmer", interval: "Hvert 2. år" },
+      { name: "EU-kontroll", interval: "Hvert 2. år" },
+      { name: "Klimaanlegg service", interval: "Hvert 2. år" },
+    ],
+  },
+};
 
-    .tabs { display: flex; border-bottom: 1px solid #e0e0dc; margin-bottom: 1.25rem; overflow-x: auto; }
-    .tab-btn { padding: 8px 13px; font-size: 13px; background: none; border: none; border-bottom: 2px solid transparent; color: #888; cursor: pointer; font-weight: 400; white-space: nowrap; font-family: inherit; margin-bottom: -1px; transition: all 0.15s; }
-    .tab-btn.active-lb { border-bottom-color: #185FA5; color: #185FA5; font-weight: 500; }
-    .tab-btn.active-vb { border-bottom-color: #0F6E56; color: #0F6E56; font-weight: 500; }
+const TABS = [
+  { id: "daily", label: "Daglig" },
+  { id: "weekly", label: "Ukentlig" },
+  { id: "periodic", label: "Periodisk service" },
+  { id: "fault", label: "Feilrapportering" },
+  { id: "log", label: "Km-logg" },
+];
 
-    .check-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .check-header p { font-size: 13px; color: #666; }
-    .badge { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
-    .badge-lb { background: #E6F1FB; color: #185FA5; border: 1px solid #185FA530; }
-    .badge-vb { background: #E1F5EE; color: #0F6E56; border: 1px solid #0F6E5630; }
-    .checklist { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.25rem; }
-    .check-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; border: 1px solid #e0e0dc; background: #fff; cursor: pointer; transition: all 0.15s; user-select: none; }
-    .check-item:hover { border-color: #bbb; }
-    .check-item.checked-lb { border-color: #185FA550; background: #E6F1FB88; }
-    .check-item.checked-vb { border-color: #0F6E5650; background: #E1F5EE88; }
-    .checkbox { width: 20px; height: 20px; border-radius: 4px; border: 2px solid #ccc; background: transparent; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-    .checkbox.checked-lb { border-color: #185FA5; background: #185FA5; }
-    .checkbox.checked-vb { border-color: #0F6E56; background: #0F6E56; }
-    .checkbox svg { display: none; }
-    .checkbox.checked-lb svg, .checkbox.checked-vb svg { display: block; }
-    .check-label { font-size: 14px; color: #1a1a1a; }
-    .check-label.checked-lb { color: #185FA5; }
-    .check-label.checked-vb { color: #0F6E56; }
-    .check-sub { font-size: 12px; color: #888; margin-left: 8px; }
+const SEVERITY = ["Lav", "Middels", "Høy – kjøring stanset"];
 
-    .note-wrap { margin-bottom: 1rem; }
-    .note-wrap label { font-size: 13px; color: #666; margin-bottom: 4px; }
+function Badge({ color, bg, children }) {
+  return (
+    <span style={{ background: bg, color, fontSize: 12, fontWeight: 500, padding: "3px 10px", borderRadius: 20, border: `1px solid ${color}30` }}>
+      {children}
+    </span>
+  );
+}
 
-    .fault-alert { padding: 10px 14px; background: #FCEBEB; border: 1px solid #E24B4A40; border-radius: 8px; margin-bottom: 14px; font-size: 13px; color: #A32D2D; font-weight: 500; }
-
-    .photo-section { margin-bottom: 1.25rem; }
-    .photo-label { font-size: 13px; color: #666; margin-bottom: 6px; display: block; }
-    .photo-drop { border: 2px dashed #d0d0cc; border-radius: 10px; padding: 1.25rem; text-align: center; cursor: pointer; transition: border-color 0.15s; background: #fafaf8; }
-    .photo-drop:hover { border-color: #999; }
-    .photo-drop.drag-over { border-color: #185FA5; background: #E6F1FB44; }
-    .photo-drop p { font-size: 13px; color: #888; margin: 0; }
-    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; margin-top: 10px; }
-    .photo-thumb { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0dc; }
-    .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .photo-remove { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; border: none; background: rgba(0,0,0,0.55); color: #fff; font-size: 12px; cursor: pointer; line-height: 20px; text-align: center; padding: 0; }
-
-    .send-section { border-top: 1px solid #e0e0dc; padding-top: 1.25rem; margin-top: 0.5rem; }
-    .send-note { font-size: 12px; color: #888; text-align: center; margin-top: 8px; }
-    .send-btn { width: 100%; padding: 11px 0; border-radius: 8px; border: none; font-size: 15px; font-weight: 500; cursor: pointer; color: #fff; font-family: inherit; transition: opacity 0.15s; }
-    .send-btn:hover { opacity: 0.9; }
-    .send-btn-lb { background: #185FA5; }
-    .send-btn-vb { background: #0F6E56; }
-
-    @media (max-width: 480px) {
-      .common-grid { grid-template-columns: 1fr 1fr; }
-      .common-grid > div:last-child { grid-column: span 2; }
-    }
-  </style>
-</head>
-<body>
-<div class="wrap">
-
-  <div class="header">
-    <div class="logo">
-      <div class="logo-text">Reng<span class="logo-red">å</span>rd</div>
-      <div class="logo-div"></div>
-      <div class="logo-bcu">B<span class="logo-blue">C</span>U</div>
+function Textarea({ label, id, rows = 3, ...props }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      {label && <label htmlFor={id} style={{ display: "block", fontSize: 13, color: "var(--color-text-secondary)", marginBottom: 4 }}>{label}</label>}
+      <textarea id={id} rows={rows} style={{ width: "100%", boxSizing: "border-box", padding: "8px 12px", fontSize: 14, borderRadius: 8, border: "0.5px solid var(--color-border-secondary)", background: "var(--color-background-primary)", color: "var(--color-text-primary)", resize: "vertical" }} {...props} />
     </div>
-    <div class="veh-btns">
-      <button class="veh-btn active-lb" id="btn-lb" onclick="setVehicle('lastebil')">Lastebil</button>
-      <button class="veh-btn" id="btn-vb" onclick="setVehicle('varebil')">Varebil</button>
+  );
+}
+
+function Input({ label, id, ...props }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      {label && <label htmlFor={id} style={{ display: "block", fontSize: 13, color: "var(--color-text-secondary)", marginBottom: 4 }}>{label}</label>}
+      <input id={id} style={{ width: "100%", boxSizing: "border-box" }} {...props} />
     </div>
-  </div>
+  );
+}
 
-  <div class="common-grid">
-    <div><label>Sjåfør</label><input type="text" id="driver" placeholder="Navn" /></div>
-    <div><label>Reg.nr</label><input type="text" id="regnr" placeholder="AB 12345" /></div>
-    <div><label>Dato</label><input type="date" id="dato" /></div>
-  </div>
-
-  <div class="tabs">
-    <button class="tab-btn active-lb" id="tab-daily" onclick="setTab('daily')">Daglig</button>
-    <button class="tab-btn" id="tab-weekly" onclick="setTab('weekly')">Ukentlig</button>
-    <button class="tab-btn" id="tab-periodic" onclick="setTab('periodic')">Periodisk service</button>
-    <button class="tab-btn" id="tab-fault" onclick="setTab('fault')">Feilrapportering</button>
-    <button class="tab-btn" id="tab-log" onclick="setTab('km-logg')">Km-logg</button>
-  </div>
-
-  <!-- Daglig -->
-  <div id="panel-daily">
-    <div class="check-header">
-      <p>Daglig sjekk før avgang</p>
-      <span class="badge badge-lb" id="daily-badge">0/10 OK</span>
-    </div>
-    <div class="checklist" id="daily-list"></div>
-    <div class="note-wrap"><label>Merknader</label><textarea id="daily-note" rows="3" placeholder="Eventuelle observasjoner eller kommentarer..."></textarea></div>
-  </div>
-
-  <!-- Ukentlig -->
-  <div id="panel-weekly" style="display:none">
-    <div class="check-header">
-      <p>Ukentlig sjekk</p>
-      <span class="badge badge-lb" id="weekly-badge">0/2 OK</span>
-    </div>
-    <div class="checklist" id="weekly-list"></div>
-    <div class="note-wrap"><label>Merknader</label><textarea id="weekly-note" rows="3" placeholder="Eventuelle observasjoner eller kommentarer..."></textarea></div>
-  </div>
-
-  <!-- Periodisk -->
-  <div id="panel-periodic" style="display:none">
-    <div class="check-header">
-      <p>Periodisk vedlikehold og service</p>
-      <span class="badge badge-lb" id="periodic-badge">0/8 OK</span>
-    </div>
-    <div class="checklist" id="periodic-list"></div>
-    <div class="note-wrap"><label>Merknader</label><textarea id="periodic-note" rows="3" placeholder="Utført av, deler brukt, observasjoner..."></textarea></div>
-  </div>
-
-  <!-- Feilrapportering -->
-  <div id="panel-fault" style="display:none">
-    <div style="margin-bottom:14px"><label>Feilens tittel</label><input type="text" id="fault-title" placeholder="F.eks. Bremsene gnisler" /></div>
-    <div style="margin-bottom:14px"><label>Berørt komponent/system</label><input type="text" id="fault-comp" placeholder="F.eks. Bakhjulsbremser, motor, girkasse..." /></div>
-    <div style="margin-bottom:14px">
-      <label>Alvorlighetsgrad</label>
-      <select id="fault-sev" onchange="checkSeverity()">
-        <option>Lav</option>
-        <option>Middels</option>
-        <option>Høy – kjøring stanset</option>
+function Select({ label, id, options, ...props }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      {label && <label htmlFor={id} style={{ display: "block", fontSize: 13, color: "var(--color-text-secondary)", marginBottom: 4 }}>{label}</label>}
+      <select id={id} style={{ width: "100%", boxSizing: "border-box" }} {...props}>
+        {options.map(o => <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>)}
       </select>
     </div>
-    <div class="fault-alert" id="fault-alert" style="display:none">Kjøretøyet er ute av drift – send rapport umiddelbart og kontakt flåteansvarlig.</div>
-    <div class="note-wrap"><label>Beskrivelse</label><textarea id="fault-desc" rows="5" placeholder="Beskriv feilen i detalj – når oppstod den, under hvilke forhold, symptomer..."></textarea></div>
-  </div>
+  );
+}
 
-  <!-- Km-logg -->
-  <div id="panel-km-logg" style="display:none">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-      <div><label>Km-stand (avlesing)</label><input type="number" id="km-stand" placeholder="123456" /></div>
-      <div><label>Drivstoff fylt (liter)</label><input type="number" id="km-fuel" placeholder="0" /></div>
-    </div>
-    <div style="margin-bottom:14px"><label>Sjåfør (km-logg)</label><input type="text" id="km-driver" placeholder="Navn" /></div>
-    <div style="margin-bottom:14px"><label>Rute / oppdrag</label><input type="text" id="km-route" placeholder="F.eks. Oslo–Bergen, vareleveranse" /></div>
-    <div class="note-wrap"><label>Merknad</label><textarea id="km-note" rows="3" placeholder="Eventuelle hendelser, stopp, avvik..."></textarea></div>
-  </div>
-
-  <!-- Send-seksjon med bildeopplasting -->
-  <div class="send-section">
-    <div class="photo-section">
-      <span class="photo-label">Legg ved bilder (valgfritt)</span>
-      <div class="photo-drop" id="photo-drop"
-        onclick="document.getElementById('photo-input').click()"
-        ondragover="event.preventDefault();this.classList.add('drag-over')"
-        ondragleave="this.classList.remove('drag-over')"
-        ondrop="handleDrop(event)">
-        <p>Trykk for å ta bilde eller velg fra galleri</p>
-        <p style="margin-top:4px;font-size:12px;">Eller dra og slipp bilder hit</p>
-        <input type="file" id="photo-input" accept="image/*" multiple capture="environment" style="display:none" onchange="handleFiles(this.files)" />
+function Checklist({ items, checks, onToggle, prefix, color, bg, note, setNote, noteId }) {
+  const count = items.filter((_, i) => checks[`${prefix}-${i}`]).length;
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+        <p style={{ margin: 0, fontSize: 13, color: "var(--color-text-secondary)" }}>{items.length} punkter</p>
+        <Badge color={color} bg={bg}>{count}/{items.length} OK</Badge>
       </div>
-      <div class="photo-grid" id="photo-grid"></div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+        {items.map((item, i) => {
+          const key = `${prefix}-${i}`;
+          const ok = checks[key];
+          return (
+            <div key={key} onClick={() => onToggle(key)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 8, border: `0.5px solid ${ok ? color + "50" : "var(--color-border-tertiary)"}`, background: ok ? bg + "80" : "var(--color-background-primary)", cursor: "pointer" }}>
+              <div style={{ width: 20, height: 20, borderRadius: 4, border: `2px solid ${ok ? color : "var(--color-border-secondary)"}`, background: ok ? color : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                {ok && <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7L10 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+              </div>
+              <span style={{ fontSize: 14, color: ok ? color : "var(--color-text-primary)" }}>{item}</span>
+            </div>
+          );
+        })}
+      </div>
+      <Textarea label="Merknader" id={noteId} value={note} onChange={e => setNote(e.target.value)} placeholder="Eventuelle observasjoner eller kommentarer..." />
     </div>
-    <button class="send-btn send-btn-lb" id="send-btn" onclick="sendReport()">Send rapport via e-post</button>
-    <p class="send-note">Rapporten sendes til vedlikehold@rengaard.no via din e-postklient</p>
-  </div>
+  );
+}
 
-</div>
-<script>
-  const EMAIL = "vedlikehold@rengaard.no";
-  const DATA = {
-    lastebil: {
-      daily: ["Motorolje nivå","Kjølevæske nivå","Bremsevæske nivå","Vindspylervæske nivå","Dekk og lufttrykk (alle hjul inkl. reservehjul)","Bremser (funksjon og lyd)","Lys og blinklys","Advarselslys på dashboard","Vinduspuss og speil","Lasterom – sikring av gods"],
-      weekly: ["Renslighet – hytte og lasterom","Baklift – smøring og funksjonskontroll"],
-      periodic: [
-        {n:"Motorolje og filter bytte",i:"Hver 15 000 km"},
-        {n:"Luftfilter sjekk/bytte",i:"Hvert år"},
-        {n:"Bremser – kontroll og måling",i:"Hvert halvår"},
-        {n:"Drivremmer",i:"Hvert 2. år"},
-        {n:"Girkasse og differensial olje",i:"Hvert 2. år"},
-        {n:"Kjøresystem – full EU-kontroll",i:"Hvert år"},
-        {n:"ADR-utstyr kontroll",i:"Halvårlig"},
-        {n:"Tachograf kalibrering",i:"Hvert 2. år"}
-      ]
-    },
-    varebil: {
-      daily: ["Motorolje nivå","Kjølevæske nivå","Bremsevæske nivå","Vindspylervæske nivå","Dekk og lufttrykk","Bremser (funksjon)","Lys og blinklys","Advarselslys på dashboard","Vinduspuss og speil","Lasterom – sikring av gods"],
-      weekly: ["Renslighet – hytte og lasterom","Baklift – smøring og funksjonskontroll"],
-      periodic: [
-        {n:"Motorolje og filter bytte",i:"Hver 10 000 km"},
-        {n:"Luftfilter sjekk/bytte",i:"Hvert år"},
-        {n:"Bremser – kontroll og måling",i:"Hvert halvår"},
-        {n:"Drivremmer",i:"Hvert 2. år"},
-        {n:"EU-kontroll",i:"Hvert 2. år"},
-        {n:"Klimaanlegg service",i:"Hvert 2. år"}
-      ]
+export default function App() {
+  const [vehicleType, setVehicleType] = useState("lastebil");
+  const [tab, setTab] = useState("daily");
+  const [checks, setChecks] = useState({});
+  const [weeklyChecks, setWeeklyChecks] = useState({});
+  const [dailyNote, setDailyNote] = useState("");
+  const [weeklyNote, setWeeklyNote] = useState("");
+  const [periodicChecks, setPeriodicChecks] = useState({});
+  const [periodicNote, setPeriodicNote] = useState("");
+  const [fault, setFault] = useState({ title: "", desc: "", severity: "Lav", component: "" });
+  const [kmLog, setKmLog] = useState({ km: "", fuel: "", driver: "", route: "", note: "" });
+  const [common, setCommon] = useState({ driver: "", regNr: "", date: new Date().toISOString().slice(0, 10) });
+  const [photos, setPhotos] = useState([]);
+  const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [email, setEmail] = useState("");
+
+  const v = VEHICLES[vehicleType];
+  const toggleCheck = (key) => setChecks(p => ({ ...p, [key]: !p[key] }));
+  const toggleWeekly = (key) => setWeeklyChecks(p => ({ ...p, [key]: !p[key] }));
+  const togglePeriodic = (key) => setPeriodicChecks(p => ({ ...p, [key]: !p[key] }));
+
+  function buildEmailBody() {
+    const lines = [];
+    lines.push(`VEDLIKEHOLDSRAPPORT – ${v.label.toUpperCase()}`);
+    lines.push(`Dato: ${common.date}  |  Sjåfør: ${common.driver}  |  Reg.nr: ${common.regNr}`);
+    lines.push("");
+    if (tab === "daily") {
+      lines.push("=== DAGLIG SJEKKLISTE ===");
+      v.daily.forEach((item, i) => lines.push(`${checks[`daily-${vehicleType}-${i}`] ? "[OK]" : "[ ]"} ${item}`));
+      if (dailyNote) lines.push(`\nMerknad: ${dailyNote}`);
     }
-  };
-
-  let vehicle = "lastebil", activeTab = "daily", checks = {}, photos = [];
-
-  function vClass(base) { return base + (vehicle === "lastebil" ? "-lb" : "-vb"); }
-
-  function setVehicle(v) {
-    vehicle = v; checks = {};
-    document.getElementById("btn-lb").className = "veh-btn" + (v === "lastebil" ? " active-lb" : "");
-    document.getElementById("btn-vb").className = "veh-btn" + (v === "varebil" ? " active-vb" : "");
-    document.querySelectorAll(".tab-btn").forEach(b => b.className = "tab-btn");
-    document.getElementById("tab-" + activeTab).classList.add(vClass("active"));
-    document.getElementById("send-btn").className = "send-btn " + vClass("send-btn");
-    renderAll();
-  }
-
-  function setTab(t) {
-    activeTab = t;
-    ["daily","weekly","periodic","fault","km-logg"].forEach(p => {
-      document.getElementById("panel-" + p).style.display = p === t ? "" : "none";
-      const btn = document.getElementById("tab-" + p);
-      if (btn) btn.className = "tab-btn" + (p === t ? " " + vClass("active") : "");
-    });
-  }
-
-  function renderList(listId, items, prefix, badgeId) {
-    const list = document.getElementById(listId);
-    list.innerHTML = "";
-    items.forEach((item, i) => {
-      const key = prefix + i, ok = !!checks[key];
-      const div = document.createElement("div");
-      div.className = "check-item" + (ok ? " " + vClass("checked") : "");
-      div.innerHTML = `
-        <div class="checkbox ${ok ? vClass("checked") : ""}">
-          <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7L10 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <span class="check-label ${ok ? vClass("checked") : ""}">${typeof item==="object"?item.n:item}${typeof item==="object"?`<span class="check-sub">${item.i}</span>`:""}</span>`;
-      div.onclick = () => { checks[key] = !checks[key]; renderList(listId, items, prefix, badgeId); };
-      list.appendChild(div);
-    });
-    const count = items.filter((_,i) => !!checks[prefix+i]).length;
-    const badge = document.getElementById(badgeId);
-    badge.textContent = count+"/"+items.length+(listId==="periodic-list"?" utført":" OK");
-    badge.className = "badge " + vClass("badge");
-  }
-
-  function renderAll() {
-    const d = DATA[vehicle];
-    renderList("daily-list", d.daily, "d-", "daily-badge");
-    renderList("weekly-list", d.weekly, "w-", "weekly-badge");
-    renderList("periodic-list", d.periodic, "p-", "periodic-badge");
+    if (tab === "weekly") {
+      lines.push("=== UKENTLIG SJEKKLISTE ===");
+      v.weekly.forEach((item, i) => lines.push(`${weeklyChecks[`weekly-${vehicleType}-${i}`] ? "[OK]" : "[ ]"} ${item}`));
+      if (weeklyNote) lines.push(`\nMerknad: ${weeklyNote}`);
+    }
+    if (tab === "periodic") {
+      lines.push("=== PERIODISK SERVICE ===");
+      v.periodic.forEach((item, i) => lines.push(`${periodicChecks[`${vehicleType}-p-${i}`] ? "[OK]" : "[ ]"} ${item.name} (${item.interval})`));
+      if (periodicNote) lines.push(`\nMerknad: ${periodicNote}`);
+    }
+    if (tab === "fault") {
+      lines.push("=== FEILRAPPORT ===");
+      lines.push(`Tittel: ${fault.title}`);
+      lines.push(`Komponent: ${fault.component}`);
+      lines.push(`Alvorlighetsgrad: ${fault.severity}`);
+      lines.push(`Beskrivelse: ${fault.desc}`);
+    }
+    if (tab === "log") {
+      lines.push("=== KILOMETERLOGG ===");
+      lines.push(`Km-stand: ${kmLog.km}`);
+      lines.push(`Drivstoff fylt: ${kmLog.fuel} liter`);
+      lines.push(`Sjåfør: ${kmLog.driver}`);
+      lines.push(`Rute/oppdrag: ${kmLog.route}`);
+      if (kmLog.note) lines.push(`Merknad: ${kmLog.note}`);
+    }
+    return lines.join("\n");
   }
 
   function handleFiles(files) {
     Array.from(files).forEach(f => {
       const reader = new FileReader();
-      reader.onload = e => { photos.push({name: f.name, data: e.target.result}); renderPhotos(); };
+      reader.onload = e => setPhotos(prev => [...prev, { name: f.name, data: e.target.result }]);
       reader.readAsDataURL(f);
     });
   }
-  function handleDrop(e) {
-    e.preventDefault();
-    document.getElementById("photo-drop").classList.remove("drag-over");
-    handleFiles(e.dataTransfer.files);
-  }
-  function removePhoto(i) { photos.splice(i, 1); renderPhotos(); }
-  function renderPhotos() {
-    const grid = document.getElementById("photo-grid");
-    grid.innerHTML = "";
-    photos.forEach((p, i) => {
-      const div = document.createElement("div");
-      div.className = "photo-thumb";
-      div.innerHTML = `<img src="${p.data}" alt="${p.name}"><button class="photo-remove" onclick="event.stopPropagation();removePhoto(${i})">✕</button>`;
-      grid.appendChild(div);
-    });
+
+  function handleSend() {
+    setSending(true);
+    const subject = encodeURIComponent(`Vedlikeholdsrapport – ${v.label} – ${common.regNr || "ukjent"} – ${common.date}`);
+    const body = encodeURIComponent(buildEmailBody());
+    window.open(`mailto:${email}?subject=${subject}&body=${body}`);
+    setTimeout(() => { setSending(false); setSent(true); setTimeout(() => setSent(false), 3000); }, 600);
   }
 
-  function checkSeverity() {
-    document.getElementById("fault-alert").style.display =
-      document.getElementById("fault-sev").value === "Høy – kjøring stanset" ? "" : "none";
-  }
+  return (
+    <div style={{ padding: "1rem 0", maxWidth: 680, margin: "0 auto" }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ display: "flex", alignItems: "baseline" }}>
+            <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.5px", color: "var(--color-text-primary)" }}>Reng</span>
+            <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.5px", color: "#E24B4A" }}>å</span>
+            <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.5px", color: "var(--color-text-primary)" }}>rd</span>
+          </div>
+          <div style={{ width: 1, height: 24, background: "var(--color-border-secondary)" }} />
+          <div style={{ display: "flex", alignItems: "baseline" }}>
+            <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: "1px", color: "var(--color-text-primary)" }}>B</span>
+            <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: "1px", color: "#185FA5" }}>C</span>
+            <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: "1px", color: "var(--color-text-primary)" }}>U</span>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          {Object.entries(VEHICLES).map(([key, val]) => (
+            <button key={key} onClick={() => { setVehicleType(key); setChecks({}); setWeeklyChecks({}); setPeriodicChecks({}); }}
+              style={{ padding: "6px 16px", borderRadius: 20, border: vehicleType === key ? `2px solid ${val.color}` : "0.5px solid var(--color-border-secondary)", background: vehicleType === key ? val.bg : "var(--color-background-primary)", color: vehicleType === key ? val.color : "var(--color-text-secondary)", fontWeight: vehicleType === key ? 500 : 400, cursor: "pointer", fontSize: 14 }}>
+              {val.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
-  function sendReport() {
-    const driver = document.getElementById("driver").value;
-    const regnr = document.getElementById("regnr").value;
-    const dato = document.getElementById("dato").value;
-    const vLabel = vehicle === "lastebil" ? "Lastebil" : "Varebil";
-    const d = DATA[vehicle];
-    const lines = [];
-    lines.push("VEDLIKEHOLDSRAPPORT – " + vLabel.toUpperCase());
-    lines.push("Dato: "+dato+"  |  Sjåfør: "+driver+"  |  Reg.nr: "+regnr);
-    lines.push("");
-    if (activeTab==="daily") {
-      lines.push("=== DAGLIG SJEKKLISTE ===");
-      d.daily.forEach((item,i) => lines.push((checks["d-"+i]?"[OK]":"[ ]")+" "+item));
-      const n=document.getElementById("daily-note").value; if(n) lines.push("\nMerknad: "+n);
-    }
-    if (activeTab==="weekly") {
-      lines.push("=== UKENTLIG SJEKKLISTE ===");
-      d.weekly.forEach((item,i) => lines.push((checks["w-"+i]?"[OK]":"[ ]")+" "+item));
-      const n=document.getElementById("weekly-note").value; if(n) lines.push("\nMerknad: "+n);
-    }
-    if (activeTab==="periodic") {
-      lines.push("=== PERIODISK SERVICE ===");
-      d.periodic.forEach((item,i) => lines.push((checks["p-"+i]?"[OK]":"[ ]")+" "+item.n+" ("+item.i+")"));
-      const n=document.getElementById("periodic-note").value; if(n) lines.push("\nMerknad: "+n);
-    }
-    if (activeTab==="fault") {
-      lines.push("=== FEILRAPPORT ===");
-      lines.push("Tittel: "+document.getElementById("fault-title").value);
-      lines.push("Komponent: "+document.getElementById("fault-comp").value);
-      lines.push("Alvorlighetsgrad: "+document.getElementById("fault-sev").value);
-      lines.push("Beskrivelse: "+document.getElementById("fault-desc").value);
-    }
-    if (activeTab==="km-logg") {
-      lines.push("=== KILOMETERLOGG ===");
-      lines.push("Km-stand: "+document.getElementById("km-stand").value);
-      lines.push("Drivstoff fylt: "+document.getElementById("km-fuel").value+" liter");
-      lines.push("Sjåfør: "+document.getElementById("km-driver").value);
-      lines.push("Rute/oppdrag: "+document.getElementById("km-route").value);
-      const n=document.getElementById("km-note").value; if(n) lines.push("Merknad: "+n);
-    }
-    if (photos.length > 0) lines.push("\n[Rapporten har "+photos.length+" vedlagte bilde(r) – disse må sendes separat da e-post ikke støtter bilder direkte fra nettleser]");
-    const subject = encodeURIComponent("Vedlikeholdsrapport – "+vLabel+" – "+(regnr||"ukjent")+" – "+dato);
-    const body = encodeURIComponent(lines.join("\n"));
-    window.location.href = "mailto:"+EMAIL+"?subject="+subject+"&body="+body;
-  }
+      {/* Common fields */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
+        {[["Sjåfør", "driver"], ["Reg.nr", "regNr"], ["Dato", "date"]].map(([label, key]) => (
+          <div key={key}>
+            <label style={{ display: "block", fontSize: 12, color: "var(--color-text-secondary)", marginBottom: 3 }}>{label}</label>
+            <input type={key === "date" ? "date" : "text"} value={common[key]} onChange={e => setCommon(p => ({ ...p, [key]: e.target.value }))} style={{ width: "100%", boxSizing: "border-box" }} />
+          </div>
+        ))}
+      </div>
 
-  document.getElementById("dato").value = new Date().toISOString().slice(0,10);
-  renderAll();
-</script>
-</body>
-</html>
+      {/* Tabs */}
+      <div style={{ display: "flex", gap: 0, marginBottom: 20, borderBottom: "0.5px solid var(--color-border-tertiary)", overflowX: "auto" }}>
+        {TABS.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            style={{ padding: "8px 13px", fontSize: 13, background: "none", border: "none", borderBottom: tab === t.id ? `2px solid ${v.color}` : "2px solid transparent", color: tab === t.id ? v.color : "var(--color-text-secondary)", cursor: "pointer", fontWeight: tab === t.id ? 500 : 400, marginBottom: -1, whiteSpace: "nowrap" }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "daily" && (
+        <Checklist items={v.daily} checks={checks} onToggle={toggleCheck} prefix={`daily-${vehicleType}`} color={v.color} bg={v.bg} note={dailyNote} setNote={setDailyNote} noteId="daily-note" />
+      )}
+
+      {tab === "weekly" && (
+        <Checklist items={v.weekly} checks={weeklyChecks} onToggle={toggleWeekly} prefix={`weekly-${vehicleType}`} color={v.color} bg={v.bg} note={weeklyNote} setNote={setWeeklyNote} noteId="weekly-note" />
+      )}
+
+      {tab === "periodic" && (
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--color-text-secondary)" }}>Periodisk vedlikehold og service</p>
+            <Badge color={v.color} bg={v.bg}>{v.periodic.filter((_, i) => periodicChecks[`${vehicleType}-p-${i}`]).length}/{v.periodic.length} utført</Badge>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+            {v.periodic.map((item, i) => {
+              const key = `${vehicleType}-p-${i}`;
+              const ok = periodicChecks[key];
+              return (
+                <div key={key} onClick={() => togglePeriodic(key)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 8, border: `0.5px solid ${ok ? v.color + "50" : "var(--color-border-tertiary)"}`, background: ok ? v.bg + "80" : "var(--color-background-primary)", cursor: "pointer" }}>
+                  <div style={{ width: 20, height: 20, borderRadius: 4, border: `2px solid ${ok ? v.color : "var(--color-border-secondary)"}`, background: ok ? v.color : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    {ok && <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7L10 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontSize: 14, color: ok ? v.color : "var(--color-text-primary)" }}>{item.name}</span>
+                    <span style={{ fontSize: 12, color: "var(--color-text-secondary)", marginLeft: 8 }}>{item.interval}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <Textarea label="Merknader" id="periodic-note" value={periodicNote} onChange={e => setPeriodicNote(e.target.value)} placeholder="Utført av, deler brukt, observasjoner..." />
+        </div>
+      )}
+
+      {tab === "fault" && (
+        <div>
+          <Input label="Feilens tittel" id="fault-title" placeholder="F.eks. Bremsene gnisler" value={fault.title} onChange={e => setFault(p => ({ ...p, title: e.target.value }))} />
+          <Input label="Berørt komponent/system" id="fault-comp" placeholder="F.eks. Bakhjulsbremser, motor, girkasse..." value={fault.component} onChange={e => setFault(p => ({ ...p, component: e.target.value }))} />
+          <Select label="Alvorlighetsgrad" id="fault-sev" options={SEVERITY} value={fault.severity} onChange={e => setFault(p => ({ ...p, severity: e.target.value }))} />
+          {fault.severity === "Høy – kjøring stanset" && (
+            <div style={{ padding: "10px 14px", background: "#FCEBEB", border: "0.5px solid #E24B4A50", borderRadius: 8, marginBottom: 14 }}>
+              <p style={{ margin: 0, fontSize: 13, color: "#A32D2D", fontWeight: 500 }}>Kjøretøyet er ute av drift – send rapport umiddelbart og kontakt flåteansvarlig.</p>
+            </div>
+          )}
+          <Textarea label="Beskrivelse" id="fault-desc" rows={5} placeholder="Beskriv feilen i detalj – når oppstod den, under hvilke forhold, symptomer..." value={fault.desc} onChange={e => setFault(p => ({ ...p, desc: e.target.value }))} />
+        </div>
+      )}
+
+      {tab === "log" && (
+        <div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div>
+              <label style={{ display: "block", fontSize: 13, color: "var(--color-text-secondary)", marginBottom: 4 }}>Km-stand (avlesing)</label>
+              <input type="number" placeholder="123456" value={kmLog.km} onChange={e => setKmLog(p => ({ ...p, km: e.target.value }))} style={{ width: "100%", boxSizing: "border-box" }} />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: 13, color: "var(--color-text-secondary)", marginBottom: 4 }}>Drivstoff fylt (liter)</label>
+              <input type="number" placeholder="0" value={kmLog.fuel} onChange={e => setKmLog(p => ({ ...p, fuel: e.target.value }))} style={{ width: "100%", boxSizing: "border-box" }} />
+            </div>
+          </div>
+          <div style={{ marginTop: 14 }}>
+            <Input label="Sjåfør (km-logg)" id="log-driver" value={kmLog.driver} onChange={e => setKmLog(p => ({ ...p, driver: e.target.value }))} placeholder="Navn" />
+            <Input label="Rute / oppdrag" id="log-route" value={kmLog.route} onChange={e => setKmLog(p => ({ ...p, route: e.target.value }))} placeholder="F.eks. Oslo–Bergen, vareleveranse" />
+            <Textarea label="Merknad" id="log-note" value={kmLog.note} onChange={e => setKmLog(p => ({ ...p, note: e.target.value }))} placeholder="Eventuelle hendelser, stopp, avvik..." />
+          </div>
+        </div>
+      )}
+
+      {/* Bildeopplasting */}
+      <div style={{ marginBottom: 20 }}>
+        <label style={{ display: "block", fontSize: 13, color: "var(--color-text-secondary)", marginBottom: 6 }}>Legg ved bilder (valgfritt)</label>
+        <div
+          onClick={() => document.getElementById("photo-input").click()}
+          onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = v.color; }}
+          onDragLeave={e => { e.currentTarget.style.borderColor = "#d0d0cc"; }}
+          onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#d0d0cc"; handleFiles(e.dataTransfer.files); }}
+          style={{ border: "2px dashed #d0d0cc", borderRadius: 10, padding: "1.25rem", textAlign: "center", cursor: "pointer", background: "var(--color-background-secondary)" }}>
+          <p style={{ fontSize: 13, color: "var(--color-text-secondary)", margin: 0 }}>Trykk for å ta bilde eller velg fra galleri</p>
+          <p style={{ fontSize: 12, color: "var(--color-text-secondary)", marginTop: 4 }}>Eller dra og slipp bilder hit</p>
+          <input id="photo-input" type="file" accept="image/*" multiple style={{ display: "none" }} onChange={e => handleFiles(e.target.files)} />
+        </div>
+        {photos.length > 0 && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))", gap: 8, marginTop: 10 }}>
+            {photos.map((p, i) => (
+              <div key={i} style={{ position: "relative", aspectRatio: "1", borderRadius: 8, overflow: "hidden", border: "1px solid var(--color-border-tertiary)" }}>
+                <img src={p.data} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                <button onClick={() => setPhotos(prev => prev.filter((_, j) => j !== i))}
+                  style={{ position: "absolute", top: 4, right: 4, width: 20, height: 20, borderRadius: "50%", border: "none", background: "rgba(0,0,0,0.55)", color: "#fff", fontSize: 12, cursor: "pointer", lineHeight: "20px", textAlign: "center", padding: 0 }}>✕</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Email + Send */}
+      <div style={{ borderTop: "0.5px solid var(--color-border-tertiary)", paddingTop: 18, marginTop: 8 }}>
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ display: "block", fontSize: 13, color: "var(--color-text-secondary)", marginBottom: 4 }}>Send rapport til e-post</label>
+          <input type="email" placeholder="vedlikehold@bedrift.no" value={email} onChange={e => setEmail(e.target.value)} style={{ width: "100%", boxSizing: "border-box" }} />
+        </div>
+        <button onClick={handleSend} disabled={sending}
+          style={{ width: "100%", padding: "11px 0", borderRadius: 8, border: "none", background: v.color, color: "white", fontSize: 15, fontWeight: 500, cursor: sending ? "wait" : "pointer", opacity: sending ? 0.8 : 1 }}>
+          {sent ? "Rapport åpnet i e-postklient ✓" : sending ? "Forbereder..." : "Send rapport via e-post"}
+        </button>
+        <p style={{ margin: "8px 0 0", fontSize: 12, color: "var(--color-text-secondary)", textAlign: "center" }}>Åpner din e-postklient med ferdig utfylt rapport</p>
+      </div>
+    </div>
+  );
+}
