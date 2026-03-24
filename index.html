@@ -58,24 +58,23 @@
 
     .fault-alert { padding: 10px 14px; background: #FCEBEB; border: 1px solid #E24B4A40; border-radius: 8px; margin-bottom: 14px; font-size: 13px; color: #A32D2D; font-weight: 500; }
 
+    .photo-section { margin-bottom: 1.25rem; }
+    .photo-label { font-size: 13px; color: #666; margin-bottom: 6px; display: block; }
+    .photo-drop { border: 2px dashed #d0d0cc; border-radius: 10px; padding: 1.25rem; text-align: center; cursor: pointer; transition: border-color 0.15s; background: #fafaf8; }
+    .photo-drop:hover { border-color: #999; }
+    .photo-drop.drag-over { border-color: #185FA5; background: #E6F1FB44; }
+    .photo-drop p { font-size: 13px; color: #888; margin: 0; }
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; margin-top: 10px; }
+    .photo-thumb { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0dc; }
+    .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-remove { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; border: none; background: rgba(0,0,0,0.55); color: #fff; font-size: 12px; cursor: pointer; line-height: 20px; text-align: center; padding: 0; }
+
     .send-section { border-top: 1px solid #e0e0dc; padding-top: 1.25rem; margin-top: 0.5rem; }
     .send-note { font-size: 12px; color: #888; text-align: center; margin-top: 8px; }
     .send-btn { width: 100%; padding: 11px 0; border-radius: 8px; border: none; font-size: 15px; font-weight: 500; cursor: pointer; color: #fff; font-family: inherit; transition: opacity 0.15s; }
     .send-btn:hover { opacity: 0.9; }
     .send-btn-lb { background: #185FA5; }
     .send-btn-vb { background: #0F6E56; }
-
-    .photo-section { margin-bottom: 1.25rem; }
-    .photo-section label { font-size: 13px; color: #666; margin-bottom: 6px; display: block; }
-    .photo-drop { border: 2px dashed #d0d0cc; border-radius: 10px; padding: 1.25rem; text-align: center; cursor: pointer; transition: border-color 0.15s; background: #fafaf8; }
-    .photo-drop:hover { border-color: #999; }
-    .photo-drop.drag-over { border-color: #185FA5; background: #E6F1FB44; }
-    .photo-drop p { font-size: 13px; color: #888; margin: 0; }
-    .photo-drop input[type=file] { display: none; }
-    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; margin-top: 10px; }
-    .photo-thumb { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0dc; }
-    .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .photo-thumb button { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; border: none; background: rgba(0,0,0,0.55); color: #fff; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
 
     @media (max-width: 480px) {
       .common-grid { grid-template-columns: 1fr 1fr; }
@@ -112,6 +111,7 @@
     <button class="tab-btn" id="tab-log" onclick="setTab('km-logg')">Km-logg</button>
   </div>
 
+  <!-- Daglig -->
   <div id="panel-daily">
     <div class="check-header">
       <p>Daglig sjekk før avgang</p>
@@ -121,6 +121,7 @@
     <div class="note-wrap"><label>Merknader</label><textarea id="daily-note" rows="3" placeholder="Eventuelle observasjoner eller kommentarer..."></textarea></div>
   </div>
 
+  <!-- Ukentlig -->
   <div id="panel-weekly" style="display:none">
     <div class="check-header">
       <p>Ukentlig sjekk</p>
@@ -130,6 +131,7 @@
     <div class="note-wrap"><label>Merknader</label><textarea id="weekly-note" rows="3" placeholder="Eventuelle observasjoner eller kommentarer..."></textarea></div>
   </div>
 
+  <!-- Periodisk -->
   <div id="panel-periodic" style="display:none">
     <div class="check-header">
       <p>Periodisk vedlikehold og service</p>
@@ -139,6 +141,7 @@
     <div class="note-wrap"><label>Merknader</label><textarea id="periodic-note" rows="3" placeholder="Utført av, deler brukt, observasjoner..."></textarea></div>
   </div>
 
+  <!-- Feilrapportering -->
   <div id="panel-fault" style="display:none">
     <div style="margin-bottom:14px"><label>Feilens tittel</label><input type="text" id="fault-title" placeholder="F.eks. Bremsene gnisler" /></div>
     <div style="margin-bottom:14px"><label>Berørt komponent/system</label><input type="text" id="fault-comp" placeholder="F.eks. Bakhjulsbremser, motor, girkasse..." /></div>
@@ -154,6 +157,7 @@
     <div class="note-wrap"><label>Beskrivelse</label><textarea id="fault-desc" rows="5" placeholder="Beskriv feilen i detalj – når oppstod den, under hvilke forhold, symptomer..."></textarea></div>
   </div>
 
+  <!-- Km-logg -->
   <div id="panel-km-logg" style="display:none">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
       <div><label>Km-stand (avlesing)</label><input type="number" id="km-stand" placeholder="123456" /></div>
@@ -164,13 +168,18 @@
     <div class="note-wrap"><label>Merknad</label><textarea id="km-note" rows="3" placeholder="Eventuelle hendelser, stopp, avvik..."></textarea></div>
   </div>
 
+  <!-- Send-seksjon med bildeopplasting -->
   <div class="send-section">
     <div class="photo-section">
-      <label>Legg ved bilder (valgfritt)</label>
-      <div class="photo-drop" id="photo-drop" onclick="document.getElementById('photo-input').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleDrop(event)">
+      <span class="photo-label">Legg ved bilder (valgfritt)</span>
+      <div class="photo-drop" id="photo-drop"
+        onclick="document.getElementById('photo-input').click()"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handleDrop(event)">
         <p>Trykk for å ta bilde eller velg fra galleri</p>
         <p style="margin-top:4px;font-size:12px;">Eller dra og slipp bilder hit</p>
-        <input type="file" id="photo-input" accept="image/*" multiple capture="environment" onchange="handleFiles(this.files)" />
+        <input type="file" id="photo-input" accept="image/*" multiple capture="environment" style="display:none" onchange="handleFiles(this.files)" />
       </div>
       <div class="photo-grid" id="photo-grid"></div>
     </div>
@@ -210,30 +219,7 @@
     }
   };
 
-  let photos = [];
-
-  function handleFiles(files) {
-    Array.from(files).forEach(f => {
-      const reader = new FileReader();
-      reader.onload = e => { photos.push({name: f.name, data: e.target.result}); renderPhotos(); };
-      reader.readAsDataURL(f);
-    });
-  }
-  function handleDrop(e) {
-    e.preventDefault();
-    document.getElementById("photo-drop").classList.remove("drag-over");
-    handleFiles(e.dataTransfer.files);
-  }
-  function removePhoto(i) { photos.splice(i,1); renderPhotos(); }
-  function renderPhotos() {
-    const grid = document.getElementById("photo-grid");
-    grid.innerHTML = "";
-    photos.forEach((p,i) => {
-      const div = document.createElement("div"); div.className = "photo-thumb";
-      div.innerHTML = `<img src="${p.data}" alt="${p.name}"><button onclick="removePhoto(${i})">✕</button>`;
-      grid.appendChild(div);
-    });
-  }
+  let vehicle = "lastebil", activeTab = "daily", checks = {}, photos = [];
 
   function vClass(base) { return base + (vehicle === "lastebil" ? "-lb" : "-vb"); }
 
@@ -284,6 +270,30 @@
     renderList("periodic-list", d.periodic, "p-", "periodic-badge");
   }
 
+  function handleFiles(files) {
+    Array.from(files).forEach(f => {
+      const reader = new FileReader();
+      reader.onload = e => { photos.push({name: f.name, data: e.target.result}); renderPhotos(); };
+      reader.readAsDataURL(f);
+    });
+  }
+  function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById("photo-drop").classList.remove("drag-over");
+    handleFiles(e.dataTransfer.files);
+  }
+  function removePhoto(i) { photos.splice(i, 1); renderPhotos(); }
+  function renderPhotos() {
+    const grid = document.getElementById("photo-grid");
+    grid.innerHTML = "";
+    photos.forEach((p, i) => {
+      const div = document.createElement("div");
+      div.className = "photo-thumb";
+      div.innerHTML = `<img src="${p.data}" alt="${p.name}"><button class="photo-remove" onclick="event.stopPropagation();removePhoto(${i})">✕</button>`;
+      grid.appendChild(div);
+    });
+  }
+
   function checkSeverity() {
     document.getElementById("fault-alert").style.display =
       document.getElementById("fault-sev").value === "Høy – kjøring stanset" ? "" : "none";
@@ -329,6 +339,7 @@
       lines.push("Rute/oppdrag: "+document.getElementById("km-route").value);
       const n=document.getElementById("km-note").value; if(n) lines.push("Merknad: "+n);
     }
+    if (photos.length > 0) lines.push("\n[Rapporten har "+photos.length+" vedlagte bilde(r) – disse må sendes separat da e-post ikke støtter bilder direkte fra nettleser]");
     const subject = encodeURIComponent("Vedlikeholdsrapport – "+vLabel+" – "+(regnr||"ukjent")+" – "+dato);
     const body = encodeURIComponent(lines.join("\n"));
     window.location.href = "mailto:"+EMAIL+"?subject="+subject+"&body="+body;
