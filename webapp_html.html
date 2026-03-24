@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vedlikehold – Rengård</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; padding: 1rem; }
+    .wrap { max-width: 680px; margin: 0 auto; background: #fff; border-radius: 14px; border: 1px solid #e0e0dc; padding: 1.5rem; }
+
+    /* Header */
+    .header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 1.25rem; }
+    .logo { display: flex; align-items: center; gap: 14px; }
+    .logo-text { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: #1a1a1a; }
+    .logo-red { color: #E24B4A; }
+    .logo-blue { color: #185FA5; }
+    .logo-div { width: 1px; height: 24px; background: #ccc; }
+    .logo-bcu { font-size: 22px; font-weight: 700; letter-spacing: 1px; color: #1a1a1a; }
+
+    /* Vehicle toggle */
+    .veh-btns { display: flex; gap: 8px; }
+    .veh-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid #ccc; background: #fff; font-size: 14px; cursor: pointer; font-weight: 400; color: #666; transition: all 0.15s; }
+    .veh-btn.active-lb { border: 2px solid #185FA5; background: #E6F1FB; color: #185FA5; font-weight: 500; }
+    .veh-btn.active-vb { border: 2px solid #0F6E56; background: #E1F5EE; color: #0F6E56; font-weight: 500; }
+
+    /* Common fields */
+    .common-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 1.25rem; }
+    label { display: block; font-size: 12px; color: #666; margin-bottom: 3px; }
+    input, select, textarea { width: 100%; padding: 8px 10px; font-size: 14px; border: 1px solid #d0d0cc; border-radius: 8px; background: #fff; color: #1a1a1a; font-family: inherit; outline: none; transition: border 0.15s; }
+    input:focus, select:focus, textarea:focus { border-color: #888; }
+    textarea { resize: vertical; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid #e0e0dc; margin-bottom: 1.25rem; overflow-x: auto; gap: 0; }
+    .tab-btn { padding: 8px 13px; font-size: 13px; background: none; border: none; border-bottom: 2px solid transparent; color: #888; cursor: pointer; font-weight: 400; white-space: nowrap; font-family: inherit; margin-bottom: -1px; transition: all 0.15s; }
+    .tab-btn.active-lb { border-bottom-color: #185FA5; color: #185FA5; font-weight: 500; }
+    .tab-btn.active-vb { border-bottom-color: #0F6E56; color: #0F6E56; font-weight: 500; }
+
+    /* Checklist */
+    .check-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .check-header p { font-size: 13px; color: #666; }
+    .badge { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+    .badge-lb { background: #E6F1FB; color: #185FA5; border: 1px solid #185FA530; }
+    .badge-vb { background: #E1F5EE; color: #0F6E56; border: 1px solid #0F6E5630; }
+    .checklist { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.25rem; }
+    .check-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; border: 1px solid #e0e0dc; background: #fff; cursor: pointer; transition: all 0.15s; user-select: none; }
+    .check-item:hover { border-color: #bbb; }
+    .check-item.checked-lb { border-color: #185FA550; background: #E6F1FB88; }
+    .check-item.checked-vb { border-color: #0F6E5650; background: #E1F5EE88; }
+    .checkbox { width: 20px; height: 20px; border-radius: 4px; border: 2px solid #ccc; background: transparent; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .checkbox.checked-lb { border-color: #185FA5; background: #185FA5; }
+    .checkbox.checked-vb { border-color: #0F6E56; background: #0F6E56; }
+    .checkbox svg { display: none; }
+    .checkbox.checked-lb svg, .checkbox.checked-vb svg { display: block; }
+    .check-label { font-size: 14px; color: #1a1a1a; }
+    .check-label.checked-lb { color: #185FA5; }
+    .check-label.checked-vb { color: #0F6E56; }
+    .check-sub { font-size: 12px; color: #888; margin-left: 8px; }
+
+    /* Note */
+    .note-wrap { margin-bottom: 1rem; }
+    .note-wrap label { font-size: 13px; color: #666; margin-bottom: 4px; }
+
+    /* Fault alert */
+    .fault-alert { padding: 10px 14px; background: #FCEBEB; border: 1px solid #E24B4A40; border-radius: 8px; margin-bottom: 14px; font-size: 13px; color: #A32D2D; font-weight: 500; }
+
+    /* Send section */
+    .send-section { border-top: 1px solid #e0e0dc; padding-top: 1.25rem; margin-top: 0.5rem; }
+    .send-note { font-size: 12px; color: #888; text-align: center; margin-top: 8px; }
+    .send-btn { width: 100%; padding: 11px 0; border-radius: 8px; border: none; font-size: 15px; font-weight: 500; cursor: pointer; color: #fff; font-family: inherit; transition: opacity 0.15s; }
+    .send-btn:hover { opacity: 0.9; }
+    .send-btn-lb { background: #185FA5; }
+    .send-btn-vb { background: #0F6E56; }
+
+    @media (max-width: 480px) {
+      .common-grid { grid-template-columns: 1fr 1fr; }
+      .common-grid > div:last-child { grid-column: span 2; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-text">Reng<span class="logo-red">å</span>rd</div>
+      <div class="logo-div"></div>
+      <div class="logo-bcu">B<span class="logo-blue">C</span>U</div>
+    </div>
+    <div class="veh-btns">
+      <button class="veh-btn active-lb" id="btn-lb" onclick="setVehicle('lastebil')">Lastebil</button>
+      <button class="veh-btn" id="btn-vb" onclick="setVehicle('varebil')">Varebil</button>
+    </div>
+  </div>
+
+  <!-- Common fields -->
+  <div class="common-grid">
+    <div><label>Sjåfør</label><input type="text" id="driver" placeholder="Navn" /></div>
+    <div><label>Reg.nr</label><input type="text" id="regnr" placeholder="AB 12345" /></div>
+    <div><label>Dato</label><input type="date" id="dato" /></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active-lb" id="tab-daily" onclick="setTab('daily')">Daglig</button>
+    <button class="tab-btn" id="tab-weekly" onclick="setTab('weekly')">Ukentlig</button>
+    <button class="tab-btn" id="tab-periodic" onclick="setTab('periodic')">Periodisk service</button>
+    <button class="tab-btn" id="tab-fault" onclick="setTab('fault')">Feilrapportering</button>
+    <button class="tab-btn" id="tab-log" onclick="setTab('km-logg')">Km-logg</button>
+  </div>
+
+  <!-- Daily -->
+  <div id="panel-daily">
+    <div class="check-header">
+      <p>Daglig sjekk før avgang</p>
+      <span class="badge badge-lb" id="daily-badge">0/10 OK</span>
+    </div>
+    <div class="checklist" id="daily-list"></div>
+    <div class="note-wrap"><label>Merknader</label><textarea id="daily-note" rows="3" placeholder="Eventuelle observasjoner eller kommentarer..."></textarea></div>
+  </div>
+
+  <!-- Weekly -->
+  <div id="panel-weekly" style="display:none">
+    <div class="check-header">
+      <p>Ukentlig sjekk</p>
+      <span class="badge badge-lb" id="weekly-badge">0/2 OK</span>
+    </div>
+    <div class="checklist" id="weekly-list"></div>
+    <div class="note-wrap"><label>Merknader</label><textarea id="weekly-note" rows="3" placeholder="Eventuelle observasjoner eller kommentarer..."></textarea></div>
+  </div>
+
+  <!-- Periodic -->
+  <div id="panel-periodic" style="display:none">
+    <div class="check-header">
+      <p>Periodisk vedlikehold og service</p>
+      <span class="badge badge-lb" id="periodic-badge">0/8 OK</span>
+    </div>
+    <div class="checklist" id="periodic-list"></div>
+    <div class="note-wrap"><label>Merknader</label><textarea id="periodic-note" rows="3" placeholder="Utført av, deler brukt, observasjoner..."></textarea></div>
+  </div>
+
+  <!-- Fault -->
+  <div id="panel-fault" style="display:none">
+    <div style="margin-bottom:14px"><label>Feilens tittel</label><input type="text" id="fault-title" placeholder="F.eks. Bremsene gnisler" /></div>
+    <div style="margin-bottom:14px"><label>Berørt komponent/system</label><input type="text" id="fault-comp" placeholder="F.eks. Bakhjulsbremser, motor, girkasse..." /></div>
+    <div style="margin-bottom:14px">
+      <label>Alvorlighetsgrad</label>
+      <select id="fault-sev" onchange="checkSeverity()">
+        <option>Lav</option>
+        <option>Middels</option>
+        <option>Høy – kjøring stanset</option>
+      </select>
+    </div>
+    <div class="fault-alert" id="fault-alert" style="display:none">Kjøretøyet er ute av drift – send rapport umiddelbart og kontakt flåteansvarlig.</div>
+    <div class="note-wrap"><label>Beskrivelse</label><textarea id="fault-desc" rows="5" placeholder="Beskriv feilen i detalj – når oppstod den, under hvilke forhold, symptomer..."></textarea></div>
+  </div>
+
+  <!-- Km-logg -->
+  <div id="panel-km-logg" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div><label>Km-stand (avlesing)</label><input type="number" id="km-stand" placeholder="123456" /></div>
+      <div><label>Drivstoff fylt (liter)</label><input type="number" id="km-fuel" placeholder="0" /></div>
+    </div>
+    <div style="margin-bottom:14px"><label>Sjåfør (km-logg)</label><input type="text" id="km-driver" placeholder="Navn" /></div>
+    <div style="margin-bottom:14px"><label>Rute / oppdrag</label><input type="text" id="km-route" placeholder="F.eks. Oslo–Bergen, vareleveranse" /></div>
+    <div class="note-wrap"><label>Merknad</label><textarea id="km-note" rows="3" placeholder="Eventuelle hendelser, stopp, avvik..."></textarea></div>
+  </div>
+
+  <!-- Send -->
+  <div class="send-section">
+    <button class="send-btn send-btn-lb" id="send-btn" onclick="sendReport()">Send rapport via e-post</button>
+    <p class="send-note">Rapporten sendes til vedlikehold@rengaard.no via din e-postklient</p>
+  </div>
+
+</div>
+
+<script>
+  const EMAIL = "vedlikehold@rengaard.no";
+
+  const DATA = {
+    lastebil: {
+      daily: ["Motorolje nivå","Kjølevæske nivå","Bremsevæske nivå","Vindspylervæske nivå","Dekk og lufttrykk (alle hjul inkl. reservehjul)","Bremser (funksjon og lyd)","Lys og blinklys","Advarselslys på dashboard","Vinduspuss og speil","Lasterom – sikring av gods"],
+      weekly: ["Renslighet – hytte og lasterom","Baklift – smøring og funksjonskontroll"],
+      periodic: [
+        {n:"Motorolje og filter bytte",i:"Hver 15 000 km"},
+        {n:"Luftfilter sjekk/bytte",i:"Hvert år"},
+        {n:"Bremser – kontroll og måling",i:"Hvert halvår"},
+        {n:"Drivremmer",i:"Hvert 2. år"},
+        {n:"Girkasse og differensial olje",i:"Hvert 2. år"},
+        {n:"Kjøresystem – full EU-kontroll",i:"Hvert år"},
+        {n:"ADR-utstyr kontroll",i:"Halvårlig"},
+        {n:"Tachograf kalibrering",i:"Hvert 2. år"},
+      ]
+    },
+    varebil: {
+      daily: ["Motorolje nivå","Kjølevæske nivå","Bremsevæske nivå","Vindspylervæske nivå","Dekk og lufttrykk","Bremser (funksjon)","Lys og blinklys","Advarselslys på dashboard","Vinduspuss og speil","Lasterom – sikring av gods"],
+      weekly: ["Renslighet – hytte og lasterom","Baklift – smøring og funksjonskontroll"],
+      periodic: [
+        {n:"Motorolje og filter bytte",i:"Hver 10 000 km"},
+        {n:"Luftfilter sjekk/bytte",i:"Hvert år"},
+        {n:"Bremser – kontroll og måling",i:"Hvert halvår"},
+        {n:"Drivremmer",i:"Hvert 2. år"},
+        {n:"EU-kontroll",i:"Hvert 2. år"},
+        {n:"Klimaanlegg service",i:"Hvert 2. år"},
+      ]
+    }
+  };
+
+  let vehicle = "lastebil";
+  let activeTab = "daily";
+  let checks = {};
+
+  function vClass(base) { return base + (vehicle === "lastebil" ? "-lb" : "-vb"); }
+
+  function setVehicle(v) {
+    vehicle = v;
+    checks = {};
+    document.getElementById("btn-lb").className = "veh-btn" + (v === "lastebil" ? " active-lb" : "");
+    document.getElementById("btn-vb").className = "veh-btn" + (v === "varebil" ? " active-vb" : "");
+    document.querySelectorAll(".tab-btn").forEach(b => b.className = "tab-btn");
+    document.getElementById("tab-" + activeTab).classList.add(vClass("active"));
+    document.getElementById("send-btn").className = "send-btn " + vClass("send-btn");
+    renderAll();
+  }
+
+  function setTab(t) {
+    activeTab = t;
+    ["daily","weekly","periodic","fault","km-logg"].forEach(p => {
+      document.getElementById("panel-" + p).style.display = p === t ? "" : "none";
+      const btn = document.getElementById("tab-" + p);
+      if (btn) btn.className = "tab-btn" + (p === t ? " " + vClass("active") : "");
+    });
+  }
+
+  function renderList(listId, items, prefix, badgeId) {
+    const list = document.getElementById(listId);
+    list.innerHTML = "";
+    items.forEach((item, i) => {
+      const key = prefix + i;
+      const ok = !!checks[key];
+      const div = document.createElement("div");
+      div.className = "check-item" + (ok ? " " + vClass("checked") : "");
+      div.innerHTML = `
+        <div class="checkbox ${ok ? vClass("checked") : ""}">
+          <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7L10 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="check-label ${ok ? vClass("checked") : ""}">${typeof item === "object" ? item.n : item}${typeof item === "object" ? `<span class="check-sub">${item.i}</span>` : ""}</span>
+      `;
+      div.onclick = () => { checks[key] = !checks[key]; renderList(listId, items, prefix, badgeId); };
+      list.appendChild(div);
+    });
+    const count = items.filter((_, i) => !!checks[prefix + i]).length;
+    const badge = document.getElementById(badgeId);
+    badge.textContent = count + "/" + items.length + (listId === "periodic-list" ? " utført" : " OK");
+    badge.className = "badge " + vClass("badge");
+  }
+
+  function renderAll() {
+    const d = DATA[vehicle];
+    renderList("daily-list", d.daily, "d-", "daily-badge");
+    renderList("weekly-list", d.weekly, "w-", "weekly-badge");
+    renderList("periodic-list", d.periodic, "p-", "periodic-badge");
+  }
+
+  function checkSeverity() {
+    const v = document.getElementById("fault-sev").value;
+    document.getElementById("fault-alert").style.display = v === "Høy – kjøring stanset" ? "" : "none";
+  }
+
+  function sendReport() {
+    const driver = document.getElementById("driver").value;
+    const regnr = document.getElementById("regnr").value;
+    const dato = document.getElementById("dato").value;
+    const vLabel = vehicle === "lastebil" ? "Lastebil" : "Varebil";
+    const d = DATA[vehicle];
+    const lines = [];
+    lines.push("VEDLIKEHOLDSRAPPORT – " + vLabel.toUpperCase());
+    lines.push("Dato: " + dato + "  |  Sjåfør: " + driver + "  |  Reg.nr: " + regnr);
+    lines.push("");
+
+    if (activeTab === "daily") {
+      lines.push("=== DAGLIG SJEKKLISTE ===");
+      d.daily.forEach((item, i) => lines.push((checks["d-" + i] ? "[OK]" : "[ ]") + " " + item));
+      const n = document.getElementById("daily-note").value;
+      if (n) lines.push("\nMerknad: " + n);
+    }
+    if (activeTab === "weekly") {
+      lines.push("=== UKENTLIG SJEKKLISTE ===");
+      d.weekly.forEach((item, i) => lines.push((checks["w-" + i] ? "[OK]" : "[ ]") + " " + item));
+      const n = document.getElementById("weekly-note").value;
+      if (n) lines.push("\nMerknad: " + n);
+    }
+    if (activeTab === "periodic") {
+      lines.push("=== PERIODISK SERVICE ===");
+      d.periodic.forEach((item, i) => lines.push((checks["p-" + i] ? "[OK]" : "[ ]") + " " + item.n + " (" + item.i + ")"));
+      const n = document.getElementById("periodic-note").value;
+      if (n) lines.push("\nMerknad: " + n);
+    }
+    if (activeTab === "fault") {
+      lines.push("=== FEILRAPPORT ===");
+      lines.push("Tittel: " + document.getElementById("fault-title").value);
+      lines.push("Komponent: " + document.getElementById("fault-comp").value);
+      lines.push("Alvorlighetsgrad: " + document.getElementById("fault-sev").value);
+      lines.push("Beskrivelse: " + document.getElementById("fault-desc").value);
+    }
+    if (activeTab === "km-logg") {
+      lines.push("=== KILOMETERLOGG ===");
+      lines.push("Km-stand: " + document.getElementById("km-stand").value);
+      lines.push("Drivstoff fylt: " + document.getElementById("km-fuel").value + " liter");
+      lines.push("Sjåfør: " + document.getElementById("km-driver").value);
+      lines.push("Rute/oppdrag: " + document.getElementById("km-route").value);
+      const n = document.getElementById("km-note").value;
+      if (n) lines.push("Merknad: " + n);
+    }
+
+    const subject = encodeURIComponent("Vedlikeholdsrapport – " + vLabel + " – " + (regnr || "ukjent") + " – " + dato);
+    const body = encodeURIComponent(lines.join("\n"));
+    window.location.href = "mailto:" + EMAIL + "?subject=" + subject + "&body=" + body;
+  }
+
+  // Init
+  document.getElementById("dato").value = new Date().toISOString().slice(0, 10);
+  renderAll();
+</script>
+</body>
+</html>
