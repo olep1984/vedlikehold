@@ -1,279 +1,273 @@
-import { useState, useRef } from "react";
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vedlikehold – Rengård</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; padding: 1rem; }
+    .wrap { max-width: 680px; margin: 0 auto; background: #fff; border-radius: 14px; border: 1px solid #e0e0dc; padding: 1.5rem; }
+    .header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 1.25rem; }
+    .logo { display: flex; align-items: center; gap: 14px; }
+    .logo-text { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: #1a1a1a; }
+    .logo-red { color: #E24B4A; }
+    .logo-blue { color: #185FA5; }
+    .logo-div { width: 1px; height: 24px; background: #ccc; }
+    .logo-bcu { font-size: 22px; font-weight: 700; letter-spacing: 1px; color: #1a1a1a; }
+    .veh-btns { display: flex; gap: 8px; }
+    .veh-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid #ccc; background: #fff; font-size: 14px; cursor: pointer; color: #666; }
+    .veh-btn.active-lb { border: 2px solid #185FA5; background: #E6F1FB; color: #185FA5; font-weight: 500; }
+    .veh-btn.active-vb { border: 2px solid #0F6E56; background: #E1F5EE; color: #0F6E56; font-weight: 500; }
+    .common-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 1.25rem; }
+    label { display: block; font-size: 12px; color: #666; margin-bottom: 3px; }
+    input, select, textarea { width: 100%; padding: 8px 10px; font-size: 14px; border: 1px solid #d0d0cc; border-radius: 8px; background: #fff; color: #1a1a1a; font-family: inherit; outline: none; }
+    input:focus, select:focus, textarea:focus { border-color: #888; }
+    textarea { resize: vertical; }
+    .tabs { display: flex; border-bottom: 1px solid #e0e0dc; margin-bottom: 1.25rem; overflow-x: auto; }
+    .tab-btn { padding: 8px 13px; font-size: 13px; background: none; border: none; border-bottom: 2px solid transparent; color: #888; cursor: pointer; white-space: nowrap; font-family: inherit; margin-bottom: -1px; }
+    .tab-btn.active-lb { border-bottom-color: #185FA5; color: #185FA5; font-weight: 500; }
+    .tab-btn.active-vb { border-bottom-color: #0F6E56; color: #0F6E56; font-weight: 500; }
+    .check-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .check-header p { font-size: 13px; color: #666; }
+    .badge { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+    .badge-lb { background: #E6F1FB; color: #185FA5; border: 1px solid #185FA530; }
+    .badge-vb { background: #E1F5EE; color: #0F6E56; border: 1px solid #0F6E5630; }
+    .checklist { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.25rem; }
+    .check-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; border: 1px solid #e0e0dc; background: #fff; cursor: pointer; user-select: none; }
+    .check-item.checked-lb { border-color: #185FA550; background: #E6F1FB88; }
+    .check-item.checked-vb { border-color: #0F6E5650; background: #E1F5EE88; }
+    .checkbox { width: 20px; height: 20px; border-radius: 4px; border: 2px solid #ccc; background: transparent; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .checkbox.checked-lb { border-color: #185FA5; background: #185FA5; }
+    .checkbox.checked-vb { border-color: #0F6E56; background: #0F6E56; }
+    .checkbox svg { display: none; }
+    .checkbox.checked-lb svg, .checkbox.checked-vb svg { display: block; }
+    .check-label { font-size: 14px; color: #1a1a1a; }
+    .check-label.checked-lb { color: #185FA5; }
+    .check-label.checked-vb { color: #0F6E56; }
+    .check-sub { font-size: 12px; color: #888; margin-left: 8px; }
+    .note-wrap { margin-bottom: 1rem; }
+    .note-wrap label { font-size: 13px; color: #666; margin-bottom: 4px; }
+    .fault-alert { padding: 10px 14px; background: #FCEBEB; border: 1px solid #E24B4A40; border-radius: 8px; margin-bottom: 14px; font-size: 13px; color: #A32D2D; font-weight: 500; }
+    .sms-box { padding: 10px 14px; background: #f5f5f3; border-radius: 8px; margin-bottom: 16px; font-size: 13px; color: #555; }
+    .sms-box a { color: #185FA5; font-weight: 500; text-decoration: none; }
+    .send-section { border-top: 1px solid #e0e0dc; padding-top: 1.25rem; margin-top: 1rem; }
+    .send-btn { width: 100%; padding: 11px 0; border-radius: 8px; border: none; font-size: 15px; font-weight: 500; cursor: pointer; color: #fff; font-family: inherit; }
+    .send-btn-lb { background: #185FA5; }
+    .send-btn-vb { background: #0F6E56; }
+    .send-note { font-size: 12px; color: #888; text-align: center; margin-top: 8px; }
+    @media (max-width: 480px) {
+      .common-grid { grid-template-columns: 1fr 1fr; }
+      .common-grid > div:last-child { grid-column: span 2; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
 
-const DAILY = [
-  "Motorolje nivå","Kjølevæske nivå","Bremsevæske nivå","Vindspylervæske nivå",
-  "Dekk og lufttrykk","Bremser (funksjon)","Lys og blinklys",
-  "Advarselslys på dashboard","Vinduspuss og speil","Lasterom – sikring av gods",
-];
-const WEEKLY = ["Renslighet – hytte og lasterom","Baklift – smøring og funksjonskontroll"];
+  <div class="header">
+    <div class="logo">
+      <div class="logo-text">Reng<span class="logo-red">å</span>rd</div>
+      <div class="logo-div"></div>
+      <div class="logo-bcu">B<span class="logo-blue">C</span>U</div>
+    </div>
+    <div class="veh-btns">
+      <button class="veh-btn active-lb" id="btn-lb" onclick="setVehicle('lastebil')">Lastebil</button>
+      <button class="veh-btn" id="btn-vb" onclick="setVehicle('varebil')">Varebil</button>
+    </div>
+  </div>
 
-const VEHICLES = {
+  <div class="common-grid">
+    <div><label>Sjåfør</label><input type="text" id="driver" placeholder="Navn" /></div>
+    <div><label>Reg.nr</label><input type="text" id="regnr" placeholder="AB 12345" /></div>
+    <div><label>Dato</label><input type="date" id="dato" /></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active-lb" id="tab-daily" onclick="setTab('daily')">Daglig</button>
+    <button class="tab-btn" id="tab-weekly" onclick="setTab('weekly')">Ukentlig</button>
+    <button class="tab-btn" id="tab-periodic" onclick="setTab('periodic')">Periodisk service</button>
+    <button class="tab-btn" id="tab-fault" onclick="setTab('fault')">Feilrapportering</button>
+    <button class="tab-btn" id="tab-log" onclick="setTab('km-logg')">Km-logg</button>
+  </div>
+
+  <div id="panel-daily">
+    <div class="check-header"><p>Daglig sjekk før avgang</p><span class="badge badge-lb" id="daily-badge">0/10 OK</span></div>
+    <div class="checklist" id="daily-list"></div>
+    <div class="note-wrap"><label>Merknader</label><textarea id="daily-note" rows="3" placeholder="Observasjoner eller kommentarer..."></textarea></div>
+  </div>
+
+  <div id="panel-weekly" style="display:none">
+    <div class="check-header"><p>Ukentlig sjekk</p><span class="badge badge-lb" id="weekly-badge">0/2 OK</span></div>
+    <div class="checklist" id="weekly-list"></div>
+    <div class="note-wrap"><label>Merknader</label><textarea id="weekly-note" rows="3" placeholder="Observasjoner eller kommentarer..."></textarea></div>
+  </div>
+
+  <div id="panel-periodic" style="display:none">
+    <div class="check-header"><p>Periodisk vedlikehold og service</p><span class="badge badge-lb" id="periodic-badge">0/8 OK</span></div>
+    <div class="checklist" id="periodic-list"></div>
+    <div class="note-wrap"><label>Merknader</label><textarea id="periodic-note" rows="3" placeholder="Utført av, deler brukt, observasjoner..."></textarea></div>
+  </div>
+
+  <div id="panel-fault" style="display:none">
+    <div style="margin-bottom:14px"><label>Feilens tittel</label><input type="text" id="fault-title" placeholder="F.eks. Bremsene gnisler" /></div>
+    <div style="margin-bottom:14px"><label>Berørt komponent/system</label><input type="text" id="fault-comp" placeholder="F.eks. Bakhjulsbremser, motor..." /></div>
+    <div style="margin-bottom:14px">
+      <label>Alvorlighetsgrad</label>
+      <select id="fault-sev" onchange="checkSeverity()">
+        <option>Lav</option><option>Middels</option><option>Høy – kjøring stanset</option>
+      </select>
+    </div>
+    <div class="fault-alert" id="fault-alert" style="display:none">Kjøretøyet er ute av drift – send rapport umiddelbart og kontakt flåteansvarlig.</div>
+    <div class="note-wrap"><label>Beskrivelse</label><textarea id="fault-desc" rows="5" placeholder="Beskriv feilen i detalj..."></textarea></div>
+  </div>
+
+  <div id="panel-km-logg" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div><label>Km-stand</label><input type="number" id="km-stand" placeholder="123456" /></div>
+      <div><label>Drivstoff fylt (liter)</label><input type="number" id="km-fuel" placeholder="0" /></div>
+    </div>
+    <div style="margin-bottom:14px"><label>Sjåfør</label><input type="text" id="km-driver" placeholder="Navn" /></div>
+    <div style="margin-bottom:14px"><label>Rute / oppdrag</label><input type="text" id="km-route" placeholder="F.eks. Oslo–Bergen" /></div>
+    <div class="note-wrap"><label>Merknad</label><textarea id="km-note" rows="3" placeholder="Hendelser, stopp, avvik..."></textarea></div>
+  </div>
+
+  <div class="send-section">
+    <div class="sms-box">
+      📷 Har du bilder? Send dem på SMS/MMS til <a href="sms:92034500">920 34 500</a>
+    </div>
+    <button class="send-btn send-btn-lb" id="send-btn" onclick="sendReport()">Send rapport via e-post</button>
+    <p class="send-note">Rapporten sendes til vedlikehold@rengaard.no via din e-postklient</p>
+  </div>
+
+</div>
+<script>
+const EMAIL = "vedlikehold@rengaard.no";
+const DATA = {
   lastebil: {
-    label:"Lastebil", color:"#185FA5", bg:"#E6F1FB",
-    daily:DAILY, weekly:WEEKLY,
-    periodic:[
-      {n:"Motorolje og filter bytte",i:"Hver 15 000 km"},
-      {n:"Luftfilter sjekk/bytte",i:"Hvert år"},
-      {n:"Bremser – kontroll og måling",i:"Hvert halvår"},
-      {n:"Drivremmer",i:"Hvert 2. år"},
-      {n:"Girkasse og differensial olje",i:"Hvert 2. år"},
-      {n:"Kjøresystem – full EU-kontroll",i:"Hvert år"},
-      {n:"ADR-utstyr kontroll",i:"Halvårlig"},
-      {n:"Tachograf kalibrering",i:"Hvert 2. år"},
-    ],
+    daily: ["Motorolje nivå","Kjølevæske nivå","Bremsevæske nivå","Vindspylervæske nivå","Dekk og lufttrykk (alle hjul inkl. reservehjul)","Bremser (funksjon og lyd)","Lys og blinklys","Advarselslys på dashboard","Vinduspuss og speil","Lasterom – sikring av gods"],
+    weekly: ["Renslighet – hytte og lasterom","Baklift – smøring og funksjonskontroll"],
+    periodic: [
+      {n:"Motorolje og filter bytte",i:"Hver 15 000 km"},{n:"Luftfilter sjekk/bytte",i:"Hvert år"},
+      {n:"Bremser – kontroll og måling",i:"Hvert halvår"},{n:"Drivremmer",i:"Hvert 2. år"},
+      {n:"Girkasse og differensial olje",i:"Hvert 2. år"},{n:"Kjøresystem – full EU-kontroll",i:"Hvert år"},
+      {n:"ADR-utstyr kontroll",i:"Halvårlig"},{n:"Tachograf kalibrering",i:"Hvert 2. år"}
+    ]
   },
   varebil: {
-    label:"Varebil", color:"#0F6E56", bg:"#E1F5EE",
-    daily:DAILY, weekly:WEEKLY,
-    periodic:[
-      {n:"Motorolje og filter bytte",i:"Hver 10 000 km"},
-      {n:"Luftfilter sjekk/bytte",i:"Hvert år"},
-      {n:"Bremser – kontroll og måling",i:"Hvert halvår"},
-      {n:"Drivremmer",i:"Hvert 2. år"},
-      {n:"EU-kontroll",i:"Hvert 2. år"},
-      {n:"Klimaanlegg service",i:"Hvert 2. år"},
-    ],
-  },
+    daily: ["Motorolje nivå","Kjølevæske nivå","Bremsevæske nivå","Vindspylervæske nivå","Dekk og lufttrykk","Bremser (funksjon)","Lys og blinklys","Advarselslys på dashboard","Vinduspuss og speil","Lasterom – sikring av gods"],
+    weekly: ["Renslighet – hytte og lasterom","Baklift – smøring og funksjonskontroll"],
+    periodic: [
+      {n:"Motorolje og filter bytte",i:"Hver 10 000 km"},{n:"Luftfilter sjekk/bytte",i:"Hvert år"},
+      {n:"Bremser – kontroll og måling",i:"Hvert halvår"},{n:"Drivremmer",i:"Hvert 2. år"},
+      {n:"EU-kontroll",i:"Hvert 2. år"},{n:"Klimaanlegg service",i:"Hvert 2. år"}
+    ]
+  }
 };
 
-const TABS = [
-  {id:"daily",label:"Daglig"},
-  {id:"weekly",label:"Ukentlig"},
-  {id:"periodic",label:"Periodisk service"},
-  {id:"fault",label:"Feilrapportering"},
-  {id:"log",label:"Km-logg"},
-];
+let vehicle = "lastebil", activeTab = "daily", checks = {};
 
-function Tick() {
-  return <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7L10 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+function vCls(base) { return base + (vehicle === "lastebil" ? "-lb" : "-vb"); }
+
+function setVehicle(v) {
+  vehicle = v; checks = {};
+  document.getElementById("btn-lb").className = "veh-btn" + (v==="lastebil" ? " active-lb" : "");
+  document.getElementById("btn-vb").className = "veh-btn" + (v==="varebil" ? " active-vb" : "");
+  document.querySelectorAll(".tab-btn").forEach(b => b.className = "tab-btn");
+  document.getElementById("tab-"+activeTab).classList.add(vCls("active"));
+  document.getElementById("send-btn").className = "send-btn " + vCls("send-btn");
+  renderAll();
 }
 
-function CheckItem({label, sub, checked, color, bg, onToggle}) {
-  return (
-    <div onClick={onToggle} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 14px",borderRadius:8,cursor:"pointer",userSelect:"none",border:`1px solid ${checked?color+"55":"var(--color-border-tertiary)"}`,background:checked?bg:"var(--color-background-primary)"}}>
-      <div style={{width:20,height:20,borderRadius:4,flexShrink:0,border:`2px solid ${checked?color:"var(--color-border-secondary)"}`,background:checked?color:"transparent",display:"flex",alignItems:"center",justifyContent:"center"}}>
-        {checked && <Tick/>}
-      </div>
-      <span style={{fontSize:14,color:checked?color:"var(--color-text-primary)"}}>
-        {label}{sub&&<span style={{fontSize:12,color:"var(--color-text-secondary)",marginLeft:8}}>{sub}</span>}
-      </span>
-    </div>
-  );
-}
-
-function Badge({color,bg,children}) {
-  return <span style={{fontSize:12,fontWeight:500,padding:"3px 10px",borderRadius:20,background:bg,color,border:`1px solid ${color}30`}}>{children}</span>;
-}
-
-function Textarea({label,value,onChange,rows=3,placeholder}) {
-  return (
-    <div style={{marginBottom:14}}>
-      {label&&<label style={{display:"block",fontSize:13,color:"var(--color-text-secondary)",marginBottom:4}}>{label}</label>}
-      <textarea rows={rows} value={value} onChange={onChange} placeholder={placeholder}
-        style={{width:"100%",boxSizing:"border-box",padding:"8px 12px",fontSize:14,borderRadius:8,border:"0.5px solid var(--color-border-secondary)",background:"var(--color-background-primary)",color:"var(--color-text-primary)",resize:"vertical",fontFamily:"inherit"}}/>
-    </div>
-  );
-}
-
-function Field({label,type="text",value,onChange,placeholder}) {
-  return (
-    <div style={{marginBottom:14}}>
-      {label&&<label style={{display:"block",fontSize:13,color:"var(--color-text-secondary)",marginBottom:4}}>{label}</label>}
-      <input type={type} value={value} onChange={onChange} placeholder={placeholder} style={{width:"100%",boxSizing:"border-box"}}/>
-    </div>
-  );
-}
-
-export default function App() {
-  const [vt,setVt] = useState("lastebil");
-  const [tab,setTab] = useState("daily");
-  const [checks,setChecks] = useState({});
-  const [notes,setNotes] = useState({daily:"",weekly:"",periodic:""});
-  const [fault,setFault] = useState({title:"",comp:"",sev:"Lav",desc:""});
-  const [km,setKm] = useState({stand:"",fuel:"",driver:"",route:"",note:""});
-  const [common,setCommon] = useState({driver:"",regnr:"",date:new Date().toISOString().slice(0,10)});
-  const [photos,setPhotos] = useState([]);
-  const [sent,setSent] = useState(false);
-  const fileRef = useRef();
-
-  const v = VEHICLES[vt];
-  const toggle = key => setChecks(p=>({...p,[key]:!p[key]}));
-  const count = (prefix,items) => items.filter((_,i)=>checks[`${prefix}${i}`]).length;
-
-  function handleFiles(files) {
-    Array.from(files).forEach(f=>{
-      const r = new FileReader();
-      r.onload = e => setPhotos(p=>[...p,{name:f.name,data:e.target.result}]);
-      r.readAsDataURL(f);
-    });
-  }
-
-  function send() {
-    const vl = v.label;
-    const lines = [`VEDLIKEHOLDSRAPPORT – ${vl.toUpperCase()}`,`Dato: ${common.date}  |  Sjåfør: ${common.driver}  |  Reg.nr: ${common.regnr}`,""];
-    if(tab==="daily"){
-      lines.push("=== DAGLIG SJEKKLISTE ===");
-      v.daily.forEach((x,i)=>lines.push(`${checks[`d${i}`]?"[OK]":"[ ]"} ${x}`));
-      if(notes.daily) lines.push(`\nMerknad: ${notes.daily}`);
-    } else if(tab==="weekly"){
-      lines.push("=== UKENTLIG SJEKKLISTE ===");
-      v.weekly.forEach((x,i)=>lines.push(`${checks[`w${i}`]?"[OK]":"[ ]"} ${x}`));
-      if(notes.weekly) lines.push(`\nMerknad: ${notes.weekly}`);
-    } else if(tab==="periodic"){
-      lines.push("=== PERIODISK SERVICE ===");
-      v.periodic.forEach((x,i)=>lines.push(`${checks[`p${i}`]?"[OK]":"[ ]"} ${x.n} (${x.i})`));
-      if(notes.periodic) lines.push(`\nMerknad: ${notes.periodic}`);
-    } else if(tab==="fault"){
-      lines.push("=== FEILRAPPORT ===");
-      lines.push(`Tittel: ${fault.title}`,`Komponent: ${fault.comp}`,`Alvorlighetsgrad: ${fault.sev}`,`Beskrivelse: ${fault.desc}`);
-    } else {
-      lines.push("=== KILOMETERLOGG ===");
-      lines.push(`Km-stand: ${km.stand}`,`Drivstoff: ${km.fuel} liter`,`Sjåfør: ${km.driver}`,`Rute: ${km.route}`);
-      if(km.note) lines.push(`Merknad: ${km.note}`);
-    }
-    if(photos.length) lines.push(`\n[${photos.length} bilde(r) vedlagt – send separat]`);
-    const subj = encodeURIComponent(`Vedlikeholdsrapport – ${vl} – ${common.regnr||"ukjent"} – ${common.date}`);
-    window.location.href = `mailto:vedlikehold@rengaard.no?subject=${subj}&body=${encodeURIComponent(lines.join("\n"))}`;
-    setSent(true); setTimeout(()=>setSent(false),3000);
-  }
-
-  const btnStyle = (key,val) => ({
-    padding:"6px 16px",borderRadius:20,cursor:"pointer",fontSize:14,fontFamily:"inherit",
-    border: vt===key?`2px solid ${val.color}`:"0.5px solid var(--color-border-secondary)",
-    background: vt===key?val.bg:"var(--color-background-primary)",
-    color: vt===key?val.color:"var(--color-text-secondary)",
-    fontWeight: vt===key?500:400,
+function setTab(t) {
+  activeTab = t;
+  ["daily","weekly","periodic","fault","km-logg"].forEach(p => {
+    document.getElementById("panel-"+p).style.display = p===t ? "" : "none";
+    const b = document.getElementById("tab-"+p);
+    if (b) b.className = "tab-btn" + (p===t ? " "+vCls("active") : "");
   });
-
-  return (
-    <div style={{padding:"1rem 0",maxWidth:680,margin:"0 auto"}}>
-
-      {/* Header */}
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,flexWrap:"wrap",gap:10}}>
-        <div style={{display:"flex",alignItems:"center",gap:14}}>
-          <span style={{fontSize:22,fontWeight:700,letterSpacing:"-0.5px",color:"var(--color-text-primary)"}}>
-            Reng<span style={{color:"#E24B4A"}}>å</span>rd
-          </span>
-          <div style={{width:1,height:24,background:"var(--color-border-secondary)"}}/>
-          <span style={{fontSize:22,fontWeight:700,letterSpacing:"1px",color:"var(--color-text-primary)"}}>
-            B<span style={{color:"#185FA5"}}>C</span>U
-          </span>
-        </div>
-        <div style={{display:"flex",gap:8}}>
-          {Object.entries(VEHICLES).map(([key,val])=>(
-            <button key={key} onClick={()=>{setVt(key);setChecks({});}} style={btnStyle(key,val)}>{val.label}</button>
-          ))}
-        </div>
-      </div>
-
-      {/* Felles felter */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
-        {[["Sjåfør","driver","text","Navn"],["Reg.nr","regnr","text","AB 12345"],["Dato","date","date",""]].map(([lbl,key,type,ph])=>(
-          <div key={key}>
-            <label style={{display:"block",fontSize:12,color:"var(--color-text-secondary)",marginBottom:3}}>{lbl}</label>
-            <input type={type} placeholder={ph} value={common[key]} onChange={e=>setCommon(p=>({...p,[key]:e.target.value}))} style={{width:"100%",boxSizing:"border-box"}}/>
-          </div>
-        ))}
-      </div>
-
-      {/* Tabs */}
-      <div style={{display:"flex",borderBottom:"0.5px solid var(--color-border-tertiary)",marginBottom:20,overflowX:"auto"}}>
-        {TABS.map(t=>(
-          <button key={t.id} onClick={()=>setTab(t.id)} style={{padding:"8px 13px",fontSize:13,background:"none",border:"none",fontFamily:"inherit",borderBottom:tab===t.id?`2px solid ${v.color}`:"2px solid transparent",color:tab===t.id?v.color:"var(--color-text-secondary)",fontWeight:tab===t.id?500:400,cursor:"pointer",whiteSpace:"nowrap",marginBottom:-1}}>
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Daglig */}
-      {tab==="daily"&&(
-        <div>
-          <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>
-            <span style={{fontSize:13,color:"var(--color-text-secondary)"}}>Daglig sjekk før avgang</span>
-            <Badge color={v.color} bg={v.bg}>{count("d",v.daily)}/{v.daily.length} OK</Badge>
-          </div>
-          <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>
-            {v.daily.map((item,i)=><CheckItem key={i} label={item} checked={!!checks[`d${i}`]} color={v.color} bg={v.bg} onToggle={()=>toggle(`d${i}`)}/>)}
-          </div>
-          <Textarea label="Merknader" value={notes.daily} onChange={e=>setNotes(p=>({...p,daily:e.target.value}))} placeholder="Observasjoner eller kommentarer..."/>
-        </div>
-      )}
-
-      {/* Ukentlig */}
-      {tab==="weekly"&&(
-        <div>
-          <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>
-            <span style={{fontSize:13,color:"var(--color-text-secondary)"}}>Ukentlig sjekk</span>
-            <Badge color={v.color} bg={v.bg}>{count("w",v.weekly)}/{v.weekly.length} OK</Badge>
-          </div>
-          <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>
-            {v.weekly.map((item,i)=><CheckItem key={i} label={item} checked={!!checks[`w${i}`]} color={v.color} bg={v.bg} onToggle={()=>toggle(`w${i}`)}/>)}
-          </div>
-          <Textarea label="Merknader" value={notes.weekly} onChange={e=>setNotes(p=>({...p,weekly:e.target.value}))} placeholder="Observasjoner eller kommentarer..."/>
-        </div>
-      )}
-
-      {/* Periodisk */}
-      {tab==="periodic"&&(
-        <div>
-          <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>
-            <span style={{fontSize:13,color:"var(--color-text-secondary)"}}>Periodisk vedlikehold og service</span>
-            <Badge color={v.color} bg={v.bg}>{count("p",v.periodic)}/{v.periodic.length} utført</Badge>
-          </div>
-          <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>
-            {v.periodic.map((item,i)=><CheckItem key={i} label={item.n} sub={item.i} checked={!!checks[`p${i}`]} color={v.color} bg={v.bg} onToggle={()=>toggle(`p${i}`)}/>)}
-          </div>
-          <Textarea label="Merknader" value={notes.periodic} onChange={e=>setNotes(p=>({...p,periodic:e.target.value}))} placeholder="Utført av, deler brukt, observasjoner..."/>
-        </div>
-      )}
-
-      {/* Feil */}
-      {tab==="fault"&&(
-        <div>
-          <Field label="Feilens tittel" value={fault.title} onChange={e=>setFault(p=>({...p,title:e.target.value}))} placeholder="F.eks. Bremsene gnisler"/>
-          <Field label="Berørt komponent" value={fault.comp} onChange={e=>setFault(p=>({...p,comp:e.target.value}))} placeholder="Bakhjulsbremser, motor..."/>
-          <div style={{marginBottom:14}}>
-            <label style={{display:"block",fontSize:13,color:"var(--color-text-secondary)",marginBottom:4}}>Alvorlighetsgrad</label>
-            <select value={fault.sev} onChange={e=>setFault(p=>({...p,sev:e.target.value}))} style={{width:"100%",boxSizing:"border-box"}}>
-              {["Lav","Middels","Høy – kjøring stanset"].map(o=><option key={o}>{o}</option>)}
-            </select>
-          </div>
-          {fault.sev==="Høy – kjøring stanset"&&(
-            <div style={{padding:"10px 14px",background:"#FCEBEB",border:"0.5px solid #E24B4A50",borderRadius:8,marginBottom:14,fontSize:13,color:"#A32D2D",fontWeight:500}}>
-              Kjøretøyet er ute av drift – send rapport umiddelbart og kontakt flåteansvarlig.
-            </div>
-          )}
-          <Textarea label="Beskrivelse" rows={5} value={fault.desc} onChange={e=>setFault(p=>({...p,desc:e.target.value}))} placeholder="Beskriv feilen i detalj..."/>
-        </div>
-      )}
-
-      {/* Km-logg */}
-      {tab==="log"&&(
-        <div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:14}}>
-            {[["Km-stand","stand","123456"],["Drivstoff (liter)","fuel","0"]].map(([lbl,key,ph])=>(
-              <div key={key}>
-                <label style={{display:"block",fontSize:13,color:"var(--color-text-secondary)",marginBottom:4}}>{lbl}</label>
-                <input type="number" placeholder={ph} value={km[key]} onChange={e=>setKm(p=>({...p,[key]:e.target.value}))} style={{width:"100%",boxSizing:"border-box"}}/>
-              </div>
-            ))}
-          </div>
-          <Field label="Sjåfør" value={km.driver} onChange={e=>setKm(p=>({...p,driver:e.target.value}))} placeholder="Navn"/>
-          <Field label="Rute / oppdrag" value={km.route} onChange={e=>setKm(p=>({...p,route:e.target.value}))} placeholder="Oslo–Bergen"/>
-          <Textarea label="Merknad" value={km.note} onChange={e=>setKm(p=>({...p,note:e.target.value}))} placeholder="Hendelser, stopp, avvik..."/>
-        </div>
-      )}
-
-      {/* Send */}
-      <div style={{borderTop:"0.5px solid var(--color-border-tertiary)",paddingTop:18,marginTop:16}}>
-        <div style={{padding:"10px 14px",background:"var(--color-background-secondary)",borderRadius:8,marginBottom:16,fontSize:13,color:"var(--color-text-secondary)"}}>
-          📷 Har du bilder? Send dem på SMS/MMS til <a href="sms:92034500" style={{color:"#185FA5",fontWeight:500}}>920 34 500</a>
-        </div>
-        <button onClick={send} style={{width:"100%",padding:"11px 0",borderRadius:8,border:"none",background:v.color,color:"white",fontSize:15,fontWeight:500,cursor:"pointer",fontFamily:"inherit"}}>
-          {sent?"Rapport åpnet i e-postklient ✓":"Send rapport via e-post"}
-        </button>
-        <p style={{margin:"8px 0 0",fontSize:12,color:"var(--color-text-secondary)",textAlign:"center"}}>Rapporten sendes til vedlikehold@rengaard.no</p>
-      </div>
-    </div>
-  );
 }
+
+function renderList(listId, items, prefix, badgeId) {
+  const list = document.getElementById(listId);
+  list.innerHTML = "";
+  items.forEach((item, i) => {
+    const key = prefix+i, ok = !!checks[key];
+    const div = document.createElement("div");
+    div.className = "check-item" + (ok ? " "+vCls("checked") : "");
+    div.innerHTML = `
+      <div class="checkbox ${ok ? vCls("checked") : ""}">
+        <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
+          <path d="M1 4L4 7L10 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="check-label ${ok ? vCls("checked") : ""}">
+        ${typeof item==="object" ? item.n : item}
+        ${typeof item==="object" ? `<span class="check-sub">${item.i}</span>` : ""}
+      </span>`;
+    div.onclick = () => { checks[key] = !checks[key]; renderList(listId, items, prefix, badgeId); };
+    list.appendChild(div);
+  });
+  const count = items.filter((_,i) => !!checks[prefix+i]).length;
+  const badge = document.getElementById(badgeId);
+  badge.textContent = count+"/"+items.length+(listId==="periodic-list" ? " utført" : " OK");
+  badge.className = "badge " + vCls("badge");
+}
+
+function renderAll() {
+  const d = DATA[vehicle];
+  renderList("daily-list", d.daily, "d-", "daily-badge");
+  renderList("weekly-list", d.weekly, "w-", "weekly-badge");
+  renderList("periodic-list", d.periodic, "p-", "periodic-badge");
+}
+
+function checkSeverity() {
+  document.getElementById("fault-alert").style.display =
+    document.getElementById("fault-sev").value === "Høy – kjøring stanset" ? "" : "none";
+}
+
+function sendReport() {
+  const driver = document.getElementById("driver").value;
+  const regnr = document.getElementById("regnr").value;
+  const dato = document.getElementById("dato").value;
+  const vLabel = vehicle === "lastebil" ? "Lastebil" : "Varebil";
+  const d = DATA[vehicle];
+  const lines = [];
+  lines.push("VEDLIKEHOLDSRAPPORT – "+vLabel.toUpperCase());
+  lines.push("Dato: "+dato+"  |  Sjåfør: "+driver+"  |  Reg.nr: "+regnr);
+  lines.push("");
+  if (activeTab==="daily") {
+    lines.push("=== DAGLIG SJEKKLISTE ===");
+    d.daily.forEach((x,i) => lines.push((checks["d-"+i]?"[OK]":"[ ]")+" "+x));
+    const n=document.getElementById("daily-note").value; if(n) lines.push("\nMerknad: "+n);
+  } else if (activeTab==="weekly") {
+    lines.push("=== UKENTLIG SJEKKLISTE ===");
+    d.weekly.forEach((x,i) => lines.push((checks["w-"+i]?"[OK]":"[ ]")+" "+x));
+    const n=document.getElementById("weekly-note").value; if(n) lines.push("\nMerknad: "+n);
+  } else if (activeTab==="periodic") {
+    lines.push("=== PERIODISK SERVICE ===");
+    d.periodic.forEach((x,i) => lines.push((checks["p-"+i]?"[OK]":"[ ]")+" "+x.n+" ("+x.i+")"));
+    const n=document.getElementById("periodic-note").value; if(n) lines.push("\nMerknad: "+n);
+  } else if (activeTab==="fault") {
+    lines.push("=== FEILRAPPORT ===");
+    lines.push("Tittel: "+document.getElementById("fault-title").value);
+    lines.push("Komponent: "+document.getElementById("fault-comp").value);
+    lines.push("Alvorlighetsgrad: "+document.getElementById("fault-sev").value);
+    lines.push("Beskrivelse: "+document.getElementById("fault-desc").value);
+  } else {
+    lines.push("=== KILOMETERLOGG ===");
+    lines.push("Km-stand: "+document.getElementById("km-stand").value);
+    lines.push("Drivstoff: "+document.getElementById("km-fuel").value+" liter");
+    lines.push("Sjåfør: "+document.getElementById("km-driver").value);
+    lines.push("Rute: "+document.getElementById("km-route").value);
+    const n=document.getElementById("km-note").value; if(n) lines.push("Merknad: "+n);
+  }
+  const subj = encodeURIComponent("Vedlikeholdsrapport – "+vLabel+" – "+(regnr||"ukjent")+" – "+dato);
+  window.location.href = "mailto:"+EMAIL+"?subject="+subj+"&body="+encodeURIComponent(lines.join("\n"));
+}
+
+document.getElementById("dato").value = new Date().toISOString().slice(0,10);
+renderAll();
+</script>
+</body>
+</html>
